@@ -3,7 +3,12 @@ from bs4 import BeautifulSoup
 from typing import Optional
 from config.settings import settings
 import re
+import logging
 from urllib.parse import urljoin, urlparse
+
+# Setup logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 class WebScraperService:
     def __init__(self):
@@ -14,35 +19,53 @@ class WebScraperService:
     
     def scrape_url(self, url: str) -> Optional[str]:
         """Scrape content from a given URL"""
+        logger.info(f"Starting to scrape URL: {url}")
+        
         try:
             # Validate URL
+            logger.info("Validating URL format...")
             if not self._is_valid_url(url):
+                logger.error(f"Invalid URL format: {url}")
                 raise ValueError("Invalid URL format")
             
+            logger.info("URL format valid, making HTTP request...")
             response = self.session.get(
                 url,
                 timeout=settings.REQUEST_TIMEOUT,
                 allow_redirects=True
             )
+            logger.info(f"HTTP response status: {response.status_code}")
             response.raise_for_status()
             
             # Parse HTML content
+            logger.info("Parsing HTML content...")
             soup = BeautifulSoup(response.content, 'html.parser')
+            logger.info(f"HTML parsed successfully, content length: {len(response.content)}")
             
             # Remove unwanted elements
+            logger.info("Removing unwanted HTML elements...")
             self._remove_unwanted_elements(soup)
             
             # Extract main content
+            logger.info("Extracting main content...")
             content = self._extract_main_content(soup)
+            logger.info(f"Extracted content length: {len(content)}")
             
             # Clean and format text
+            logger.info("Cleaning and formatting text...")
             cleaned_content = self._clean_text(content)
+            logger.info(f"Cleaned content length: {len(cleaned_content)}")
             
             return cleaned_content
             
         except requests.RequestException as e:
+            logger.error(f"Network error fetching URL {url}: {str(e)}")
             raise Exception(f"Error fetching URL: {str(e)}")
         except Exception as e:
+            logger.error(f"Error processing content from {url}: {str(e)}")
+            logger.error(f"Error type: {type(e).__name__}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             raise Exception(f"Error processing content: {str(e)}")
     
     def _is_valid_url(self, url: str) -> bool:
@@ -111,8 +134,9 @@ class WebScraperService:
         if not text:
             return ""
         
-        # Remove excessive whitespace
-        text = re.sub(r'\s+', ' ', text)
+        # Remove problematic characters and normalize whitespace
+        text = re.sub(r'[^\x20-\x7E\s]', '', text)  # Keep only printable ASCII and whitespace
+        text = re.sub(r'\s+', ' ', text)  # Normalize all whitespace to single spaces
         
         # Remove very short lines (likely navigation/ads)
         lines = text.split('.')

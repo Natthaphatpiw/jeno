@@ -1,8 +1,13 @@
 import json
+import logging
 from typing import Dict, Any, Optional
 from openai import OpenAI
 from config.settings import settings
 from models.schemas import GenerationContext, ArticleResponse, ArticleLayout, ImageSlot
+
+# Setup logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 class LLMService:
     def __init__(self):
@@ -11,10 +16,18 @@ class LLMService:
     def generate_article(self, context: GenerationContext, feedback: Optional[str] = None) -> Dict[str, Any]:
         """Generate article content using GPT-4o"""
         
+        logger.info("Starting article generation with LLM")
+        logger.info(f"Context: topic={context.topic_category}, industry={context.industry}")
+        logger.info(f"Has feedback: {feedback is not None}")
+        
         system_prompt = self._get_system_prompt()
         user_prompt = self._build_user_prompt(context, feedback)
         
+        logger.info(f"System prompt length: {len(system_prompt)}")
+        logger.info(f"User prompt length: {len(user_prompt)}")
+        
         try:
+            logger.info("Calling OpenAI API for article generation...")
             response = self.client.chat.completions.create(
                 model=settings.OPENAI_MODEL,
                 messages=[
@@ -26,10 +39,30 @@ class LLMService:
                 response_format={"type": "json_object"}
             )
             
-            content = response.choices[0].message.content
-            return json.loads(content)
+            logger.info("OpenAI API call successful for article generation")
             
+            content = response.choices[0].message.content
+            logger.info(f"Response content length: {len(content) if content else 0}")
+            
+            if not content:
+                logger.error("OpenAI returned empty content for article generation")
+                raise Exception("OpenAI returned empty response")
+            
+            logger.info("Parsing JSON response...")
+            result = json.loads(content)
+            logger.info(f"JSON parsed successfully. Keys: {list(result.keys())}")
+            
+            return result
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error in article generation: {str(e)}")
+            logger.error(f"Raw response: {content[:500]}..." if content else "No content")
+            raise Exception(f"Invalid JSON response from AI: {str(e)}")
         except Exception as e:
+            logger.error(f"Error in article generation: {str(e)}")
+            logger.error(f"Error type: {type(e).__name__}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             raise Exception(f"Error generating article: {str(e)}")
     
     def _get_system_prompt(self) -> str:

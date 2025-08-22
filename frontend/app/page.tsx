@@ -28,6 +28,14 @@ export default function HomePage() {
       progress: 10,
     });
 
+    // Auto-scroll to progress section
+    setTimeout(() => {
+      const progressSection = document.querySelector('[data-progress-section]');
+      if (progressSection) {
+        progressSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+
     try {
       // Simulate progress updates
       const progressSteps = [
@@ -73,7 +81,7 @@ export default function HomePage() {
 
     } catch (error) {
       if (error instanceof Error && error.message === 'Generation cancelled by user') {
-        toast.info('Article generation cancelled');
+        toast('Article generation cancelled', { icon: 'ℹ️' });
         setGenerationStatus({
           isGenerating: false,
           currentStep: '',
@@ -199,7 +207,7 @@ export default function HomePage() {
 
       {/* Generation Progress */}
       {generationStatus.isGenerating && (
-        <section className="mb-12">
+        <section className="mb-12" data-progress-section>
           <div className="card-navy max-w-4xl mx-auto">
             <div className="flex flex-col lg:flex-row items-center gap-8">
               <div className="loading-spinner border-sky-300 w-12 h-12" />
