@@ -1,0 +1,60 @@
+{
+  "pipeline_summary": {
+    "execution_time": "2025-08-22T16:22:03.580355",
+    "processing_time_seconds": 289.3340308666229,
+    "total_categories_scraped": 5,
+    "total_links_discovered": 38,
+    "total_articles_scraped": 38,
+    "successful_scrapes": 37,
+    "failed_scrapes": 1,
+    "success_rate_percent": 97.36842105263158,
+    "total_content_characters": 200909,
+    "categories_breakdown": {
+      "futurist": 14,
+      "understand-people-and-consumer": 12,
+      "transformation-and-technology": 4,
+      "utility-for-our-world": 4,
+      "experience-the-new-world": 4
+    }
+  },
+  "dataset_stats": {
+    "total_examples": 110,
+    "train_examples": 88,
+    "validation_examples": 22,
+    "system_prompt_variations": 4,
+    "user_prompt_variations": 90,
+    "categories_covered": [
+      "experience-the-new-world",
+      "utility-for-our-world",
+      "futurist",
+      "transformation-and-technology",
+      "understand-people-and-consumer"
+    ],
+    "avg_system_prompt_length": 5518,
+    "avg_user_input_length": 676,
+    "avg_assistant_response_length": 4580
+  },
+  "validation_results": {
+    "train_dataset": {
+      "total_examples": 88,
+      "valid_examples": 88,
+      "errors": [],
+      "warnings": [],
+      "success_rate": 100.0
+    },
+    "validation_dataset": {
+      "total_examples": 22,
+      "valid_examples": 22,
+      "errors": [],
+      "warnings": [],
+      "success_rate": 100.0
+    }
+  },
+  "output_files": {
+    "train_dataset": "/Users/piw/Downloads/jetask/data-pipeline/output/train.jsonl",
+    "validation_dataset": "/Users/piw/Downloads/jetask/data-pipeline/output/validation.jsonl",
+    "dataset_metadata": "/Users/piw/Downloads/jetask/data-pipeline/output/dataset_metadata.json",
+    "raw_html_files": "/Users/piw/Downloads/jetask/data-pipeline/output/raw",
+    "processed_content": "/Users/piw/Downloads/jetask/data-pipeline/output/processed"
+  }
+}

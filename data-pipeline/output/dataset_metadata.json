@@ -1,0 +1,43 @@
+{
+  "dataset_stats": {
+    "total_examples": 110,
+    "train_examples": 88,
+    "validation_examples": 22,
+    "system_prompt_variations": 4,
+    "user_prompt_variations": 90,
+    "categories_covered": [
+      "experience-the-new-world",
+      "utility-for-our-world",
+      "futurist",
+      "transformation-and-technology",
+      "understand-people-and-consumer"
+    ],
+    "avg_system_prompt_length": 5518,
+    "avg_user_input_length": 676,
+    "avg_assistant_response_length": 4580
+  },
+  "source_articles": {
+    "total_articles_processed": 37,
+    "categories_breakdown": {
+      "futurist": 14,
+      "understand-people-and-consumer": 12,
+      "transformation-and-technology": 4,
+      "utility-for-our-world": 4,
+      "experience-the-new-world": 3
+    },
+    "complexity_breakdown": {
+      "intermediate": 27,
+      "advanced": 6,
+      "basic": 4
+    },
+    "theme_breakdown": {
+      "artificial_intelligence": 22,
+      "customer_experience": 15
+    }
+  },
+  "generation_config": {
+    "train_split_ratio": 0.8,
+    "max_articles_per_category": 50,
+    "min_content_length": 500
+  }
+}

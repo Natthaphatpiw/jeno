@@ -19,8 +19,10 @@ export const articleAPI = {
         industry: request.industry,
         target_audience: request.targetAudience,
         source_url: request.sourceUrl,
+        source_urls: request.sourceUrls,
         pdf_base64: request.pdfBase64,
         seo_keywords: request.seoKeywords,
+        custom_prompt: request.customPrompt,
       }, {
         signal
       });
@@ -34,10 +36,29 @@ export const articleAPI = {
             description: slot.description,
             position: slot.position,
             suggestedType: slot.suggested_type,
+            placementRationale: slot.placement_rationale,
+            contentGuidance: slot.content_guidance,
+            dimensions: slot.dimensions,
+            aspectRatio: slot.aspect_ratio,
+            alternatives: slot.alternatives,
           })),
         },
         qualityScore: response.data.quality_score,
         iterations: response.data.iterations,
+        sourceUsageDetails: response.data.source_usage_details?.map((detail: any) => ({
+          sourceTitle: detail.source_title,
+          sourceUrl: detail.source_url,
+          contentUsed: detail.content_used,
+          usageLocation: detail.usage_location,
+          usagePurpose: detail.usage_purpose,
+          transformation: detail.transformation,
+        })) || [],
+        analysis: response.data.analysis ? {
+          strengths: response.data.analysis.strengths,
+          weaknesses: response.data.analysis.weaknesses,
+          recommendations: response.data.analysis.recommendations,
+          summary: response.data.analysis.summary,
+        } : undefined,
       };
     } catch (error) {
       if (axios.isAxiosError(error)) {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, FileText, Link, Target, Building, Hash } from 'lucide-react';
+import { Upload, FileText, Link, Target, Building, Hash, Plus, X, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ArticleRequest } from '../types';
 import { convertFileToBase64, validateUrl } from '../utils/helpers';
@@ -15,6 +15,7 @@ interface InputFormProps {
 export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
   const [formData, setFormData] = useState<ArticleRequest>({});
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [sourceUrls, setSourceUrls] = useState<string[]>(['']);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -39,11 +40,36 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
     }));
   };
 
+  const handleUrlChange = (index: number, value: string) => {
+    const newUrls = [...sourceUrls];
+    newUrls[index] = value;
+    setSourceUrls(newUrls);
+  };
+
+  const addUrlField = () => {
+    if (sourceUrls.length < 5) {
+      setSourceUrls([...sourceUrls, '']);
+    } else {
+      toast.error('Maximum 5 URLs allowed');
+    }
+  };
+
+  const removeUrlField = (index: number) => {
+    if (sourceUrls.length > 1) {
+      const newUrls = sourceUrls.filter((_, i) => i !== index);
+      setSourceUrls(newUrls);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.sourceUrl && !validateUrl(formData.sourceUrl)) {
-      toast.error('Please enter a valid URL');
+    // Validate URLs
+    const validUrls = sourceUrls.filter(url => url.trim() !== '');
+    const invalidUrls = validUrls.filter(url => !validateUrl(url));
+    
+    if (invalidUrls.length > 0) {
+      toast.error(`Please enter valid URLs. Invalid: ${invalidUrls.join(', ')}`);
       return;
     }
 
@@ -60,6 +86,7 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
     const request: ArticleRequest = {
       ...formData,
       pdfBase64,
+      sourceUrls: validUrls.length > 0 ? validUrls : undefined,
     };
 
     onSubmit(request);
@@ -68,6 +95,7 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
   const clearForm = () => {
     setFormData({});
     setUploadedFile(null);
+    setSourceUrls(['']);
   };
 
   return (
@@ -157,23 +185,53 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
           />
         </div>
 
-        {/* Source URL */}
+        {/* Source URLs */}
         <div>
-          <label className="flex items-center text-sm font-semibold text-dark-navy-700 mb-3">
-            <div className="w-5 h-5 bg-sky-100 rounded-lg flex items-center justify-center mr-3">
-              <Link className="w-3 h-3 text-sky-600" />
-            </div>
-            Source URL
-          </label>
-          <input
-            type="url"
-            className="input-field"
-            placeholder="https://example.com/article-or-resource"
-            value={formData.sourceUrl || ''}
-            onChange={(e) => handleInputChange('sourceUrl', e.target.value)}
-          />
+          <div className="flex items-center justify-between mb-3">
+            <label className="flex items-center text-sm font-semibold text-dark-navy-700">
+              <div className="w-5 h-5 bg-sky-100 rounded-lg flex items-center justify-center mr-3">
+                <Link className="w-3 h-3 text-sky-600" />
+              </div>
+              Source URLs
+              <span className="text-xs text-gray-500 ml-2">(Max 5)</span>
+            </label>
+            {sourceUrls.length < 5 && (
+              <button
+                type="button"
+                onClick={addUrlField}
+                className="flex items-center text-xs text-sky-600 hover:text-sky-700 transition-colors"
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Add URL
+              </button>
+            )}
+          </div>
+          
+          <div className="space-y-3">
+            {sourceUrls.map((url, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <input
+                  type="url"
+                  className="input-field flex-1"
+                  placeholder={`https://example.com/source-${index + 1}`}
+                  value={url}
+                  onChange={(e) => handleUrlChange(index, e.target.value)}
+                />
+                {sourceUrls.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeUrlField(index)}
+                    className="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          
           <p className="text-xs text-gray-500 mt-2 ml-8">
-            Provide a URL to scrape content from for additional context
+            Provide URLs to scrape content from multiple sources. The AI will use different sources for different sections of the article.
           </p>
         </div>
 
@@ -236,6 +294,26 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
           />
           <p className="text-xs text-gray-500 mt-2 ml-8">
             Comma-separated keywords to optimize the article for search engines
+          </p>
+        </div>
+
+        {/* Custom Prompt */}
+        <div>
+          <label className="flex items-center text-sm font-semibold text-dark-navy-700 mb-3">
+            <div className="w-5 h-5 bg-sky-100 rounded-lg flex items-center justify-center mr-3">
+              <MessageSquare className="w-3 h-3 text-sky-600" />
+            </div>
+            Custom Instructions
+            <span className="text-xs text-gray-500 ml-2">(Optional)</span>
+          </label>
+          <textarea
+            className="input-field resize-y min-h-[100px]"
+            placeholder="Add specific instructions for the AI, such as: focus on case studies, include more statistics, emphasize practical implementation steps..."
+            value={formData.customPrompt || ''}
+            onChange={(e) => handleInputChange('customPrompt', e.target.value)}
+          />
+          <p className="text-xs text-gray-500 mt-2 ml-8">
+            Provide specific instructions to customize how the AI generates your article
           </p>
         </div>
 

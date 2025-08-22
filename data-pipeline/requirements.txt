@@ -1,0 +1,14 @@
+requests
+beautifulsoup4
+lxml
+tqdm
+pandas
+python-dotenv
+jsonlines
+tenacity
+colorlog
+urllib3
+html5lib
+markdownify
+selenium
+webdriver-manager

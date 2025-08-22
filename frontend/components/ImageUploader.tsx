@@ -64,9 +64,50 @@ export default function ImageUploader({
             {imageSlot.suggestedType}
           </span>
         </div>
-        <p className="text-sm text-navy-600 leading-relaxed">
-          {imageSlot.description}
-        </p>
+        
+        <div className="space-y-3">
+          <p className="text-sm text-navy-600 leading-relaxed font-medium">
+            {imageSlot.description}
+          </p>
+          
+          {imageSlot.placementRationale && (
+            <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
+              <p className="text-xs font-semibold text-sky-700 mb-1">Why this image belongs here:</p>
+              <p className="text-xs text-sky-600">{imageSlot.placementRationale}</p>
+            </div>
+          )}
+          
+          {imageSlot.contentGuidance && (
+            <div className="bg-navy-50 border border-navy-200 rounded-lg p-3">
+              <p className="text-xs font-semibold text-navy-700 mb-1">Content recommendations:</p>
+              <p className="text-xs text-navy-600">{imageSlot.contentGuidance}</p>
+            </div>
+          )}
+          
+          <div className="flex flex-wrap gap-2">
+            {imageSlot.dimensions && (
+              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                📐 {imageSlot.dimensions}
+              </span>
+            )}
+            {imageSlot.aspectRatio && (
+              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+                📏 {imageSlot.aspectRatio}
+              </span>
+            )}
+          </div>
+          
+          {imageSlot.alternatives && (
+            <details className="group">
+              <summary className="text-xs font-semibold text-gray-600 cursor-pointer hover:text-gray-800 transition-colors">
+                💡 Alternative options
+              </summary>
+              <p className="text-xs text-gray-600 mt-2 pl-4 border-l-2 border-gray-200">
+                {imageSlot.alternatives}
+              </p>
+            </details>
+          )}
+        </div>
       </div>
 
       {uploadedImage ? (

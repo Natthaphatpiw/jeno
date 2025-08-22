@@ -1,0 +1,274 @@
+{
+  "scraping_time": "2025-08-22T16:22:03.339579",
+  "total_scraped": 38,
+  "successful": 37,
+  "failed": 1,
+  "results": [
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/digital-twin-business-model",
+      "error": null,
+      "processing_time": 10.860204935073853,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/experiential-marketing-2030-trends",
+      "error": null,
+      "processing_time": 10.933856010437012,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/hello-jenie-ai",
+      "error": null,
+      "processing_time": 10.947610139846802,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/deepseek-ai-chatbot",
+      "error": null,
+      "processing_time": 7.511792182922363,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/japan-ai-earthquake-disaster-response",
+      "error": null,
+      "processing_time": 7.639620065689087,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/ai-search-marketing-strategies",
+      "error": null,
+      "processing_time": 7.573304891586304,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/agentic-ai-guide-for-modern-business",
+      "error": null,
+      "processing_time": 6.292740821838379,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/what-is-quantum-computing",
+      "error": null,
+      "processing_time": 6.251098155975342,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/behavioral-design-for-marketing",
+      "error": null,
+      "processing_time": 6.259886741638184,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/thai-ai-service-platforms",
+      "error": null,
+      "processing_time": 7.486280918121338,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/ai-smell-recognition",
+      "error": null,
+      "processing_time": 7.4858009815216064,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/what-is-critic-gpt",
+      "error": null,
+      "processing_time": 7.489840984344482,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/why-your-company-needs-ai-board",
+      "error": null,
+      "processing_time": 8.149930000305176,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/futurist/what-is-green-business",
+      "error": null,
+      "processing_time": 8.177489995956421,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/customer-journey-misconceptions",
+      "error": null,
+      "processing_time": 8.174374103546143,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/single-customer-view",
+      "error": null,
+      "processing_time": 12.101737976074219,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/stp-marketing-strategy-guide",
+      "error": null,
+      "processing_time": 12.081598043441772,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/lead-nurturing-strategy",
+      "error": null,
+      "processing_time": 12.084054946899414,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/introducing-gen-beta",
+      "error": null,
+      "processing_time": 8.038781881332397,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/5-dimensions-of-service-quality",
+      "error": null,
+      "processing_time": 8.055227994918823,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/consumer-buying-roles-marketing-guide",
+      "error": null,
+      "processing_time": 8.044978857040405,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/luxumer-marketing-strategies",
+      "error": null,
+      "processing_time": 5.907430171966553,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/reciprocity-marketing",
+      "error": null,
+      "processing_time": 5.9034528732299805,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/brand-positioning",
+      "error": null,
+      "processing_time": 5.908343076705933,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/brand-awareness-strategy",
+      "error": null,
+      "processing_time": 7.967983961105347,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/understand-people-and-consumer/buying-cycle-in-retail-business",
+      "error": null,
+      "processing_time": 7.9674413204193115,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/transformation-and-technology/immersive-event-trend",
+      "error": null,
+      "processing_time": 7.977922201156616,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/transformation-and-technology/digital-inclusion",
+      "error": null,
+      "processing_time": 6.725812911987305,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/transformation-and-technology/smart-city-transformation",
+      "error": null,
+      "processing_time": 6.727848768234253,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/transformation-and-technology/low-code-vs-no-code-platform",
+      "error": null,
+      "processing_time": 6.724745035171509,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/utility-for-our-world/how-online-booking-helps-reduce-co2",
+      "error": null,
+      "processing_time": 6.496133089065552,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/utility-for-our-world/esg-green-technology",
+      "error": null,
+      "processing_time": 6.5007407665252686,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/utility-for-our-world/global-risks-business-preparedness",
+      "error": null,
+      "processing_time": 6.49641489982605,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/utility-for-our-world/carbon-credits-business-opportunities",
+      "error": null,
+      "processing_time": 6.741957187652588,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/experience-the-new-world/okr-vs-kpi-difference",
+      "error": null,
+      "processing_time": 6.78258490562439,
+      "has_content": true
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/experience-the-new-world/sensory-experience-event-strategy",
+      "error": null,
+      "processing_time": 6.78594708442688,
+      "has_content": true
+    },
+    {
+      "success": false,
+      "url": "https://www.jenosize.com/en/ideas/experience-the-new-world/time-management-techniques",
+      "error": "RetryError[<Future at 0x10547b110 state=finished raised ReadTimeout>]",
+      "processing_time": 173.36917185783386,
+      "has_content": false
+    },
+    {
+      "success": true,
+      "url": "https://www.jenosize.com/en/ideas/experience-the-new-world/build-your-brand-without-marketplace",
+      "error": null,
+      "processing_time": 193.5148651599884,
+      "has_content": true
+    }
+  ]
+}

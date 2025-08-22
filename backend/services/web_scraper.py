@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from typing import Optional
+from typing import Optional, List, Dict
 from config.settings import settings
 import re
 import logging
@@ -154,3 +154,110 @@ class WebScraperService:
             cleaned_text = truncated + '...'
         
         return cleaned_text.strip()
+    
+    def scrape_url_with_metadata(self, url: str) -> Optional[Dict[str, str]]:
+        """Scrape content from a URL and return with metadata"""
+        logger.info(f"Starting to scrape URL with metadata: {url}")
+        
+        try:
+            # Validate URL
+            logger.info("Validating URL format...")
+            if not self._is_valid_url(url):
+                logger.error(f"Invalid URL format: {url}")
+                raise ValueError("Invalid URL format")
+            
+            logger.info("URL format valid, making HTTP request...")
+            response = self.session.get(
+                url,
+                timeout=settings.REQUEST_TIMEOUT,
+                allow_redirects=True
+            )
+            logger.info(f"HTTP response status: {response.status_code}")
+            response.raise_for_status()
+            
+            # Parse HTML content
+            logger.info("Parsing HTML content...")
+            soup = BeautifulSoup(response.content, 'html.parser')
+            logger.info(f"HTML parsed successfully, content length: {len(response.content)}")
+            
+            # Extract title
+            title = self._extract_title(soup)
+            logger.info(f"Extracted title: {title}")
+            
+            # Remove unwanted elements
+            logger.info("Removing unwanted HTML elements...")
+            self._remove_unwanted_elements(soup)
+            
+            # Extract main content
+            logger.info("Extracting main content...")
+            content = self._extract_main_content(soup)
+            logger.info(f"Extracted content length: {len(content)}")
+            
+            # Clean and format text
+            logger.info("Cleaning and formatting text...")
+            cleaned_content = self._clean_text(content)
+            logger.info(f"Cleaned content length: {len(cleaned_content)}")
+            
+            return {
+                "url": url,
+                "title": title,
+                "content": cleaned_content
+            }
+            
+        except requests.RequestException as e:
+            logger.error(f"Network error fetching URL {url}: {str(e)}")
+            raise Exception(f"Error fetching URL: {str(e)}")
+        except Exception as e:
+            logger.error(f"Error processing content from {url}: {str(e)}")
+            logger.error(f"Error type: {type(e).__name__}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            raise Exception(f"Error processing content: {str(e)}")
+    
+    def scrape_multiple_urls(self, urls: List[str], max_urls: int = 5) -> List[Dict[str, str]]:
+        """Scrape multiple URLs with metadata"""
+        logger.info(f"Starting to scrape {len(urls)} URLs (max: {max_urls})")
+        
+        # Limit to max_urls
+        urls_to_process = urls[:max_urls]
+        logger.info(f"Processing {len(urls_to_process)} URLs")
+        
+        results = []
+        for i, url in enumerate(urls_to_process, 1):
+            try:
+                logger.info(f"Processing URL {i}/{len(urls_to_process)}: {url}")
+                result = self.scrape_url_with_metadata(url)
+                if result:
+                    results.append(result)
+                    logger.info(f"Successfully scraped URL {i}: {result['title']}")
+            except Exception as e:
+                logger.error(f"Failed to scrape URL {i} ({url}): {str(e)}")
+                # Continue with other URLs even if one fails
+                continue
+        
+        logger.info(f"Successfully scraped {len(results)} out of {len(urls_to_process)} URLs")
+        return results
+    
+    def _extract_title(self, soup: BeautifulSoup) -> str:
+        """Extract page title"""
+        # Try different title sources in order of preference
+        title_sources = [
+            soup.find('title'),
+            soup.find('h1'),
+            soup.find('meta', {'property': 'og:title'}),
+            soup.find('meta', {'name': 'title'})
+        ]
+        
+        for source in title_sources:
+            if source:
+                if source.name == 'meta':
+                    title = source.get('content', '').strip()
+                else:
+                    title = source.get_text().strip()
+                
+                if title and len(title) > 0:
+                    # Clean and truncate title
+                    title = re.sub(r'\s+', ' ', title)
+                    return title[:100] + '...' if len(title) > 100 else title
+        
+        return "Untitled"
