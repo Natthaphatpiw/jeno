@@ -188,8 +188,9 @@ export default function PDFExporter({ article, uploadedImages, onClose, showThai
         container.appendChild(qualityDiv);
       }
 
-      // Process Markdown content
-      let processedContent = article.content;
+      // Process Markdown content  
+      let processedContent = showThai && article.thaiContent ? article.thaiContent : article.content;
+      const currentLayout = showThai && article.thaiLayout ? article.thaiLayout : article.layout;
       
       if (includeImages) {
         // Replace image placeholders with actual images or styled placeholders

@@ -1,0 +1,3 @@
+# Together AI Fine-tuning Requirements
+together>=1.2.0
+datasets>=2.14.0
