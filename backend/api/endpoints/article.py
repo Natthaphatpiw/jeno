@@ -21,6 +21,8 @@ logging.basicConfig(level=logging.INFO)
 
 # Initialize services
 llm_service = LLMService()
+from services.llm_service_gemini import LLMServiceGemini
+llm_service_gemini = LLMServiceGemini()
 web_scraper = WebScraperService()
 pdf_processor = PDFProcessorService()
 quality_checker = QualityCheckerService()
@@ -107,13 +109,16 @@ async def generate_article(request: ArticleRequest):
         # Generate article with quality loop
         logger.info("Starting article generation with quality loop...")
         logger.info(f"Request include_thai_translation: {request.include_thai_translation}")
-        article_data = await _generate_with_quality_loop(context, request.include_thai_translation)
+        logger.info(f"Selected model: {request.selected_model}")
+        article_data = await _generate_with_quality_loop(context, request.include_thai_translation, request.selected_model)
         logger.info("Article generation completed successfully")
         
         # Generate article analysis
         logger.info("Starting article analysis...")
         try:
-            analysis_result = llm_service.analyze_article(article_data["content"], context)
+            # Use the same model for analysis as for generation
+            selected_llm = llm_service_gemini if request.selected_model == 'gemini-pro' else llm_service
+            analysis_result = selected_llm.analyze_article(article_data["content"], context)
             article_data["analysis"] = {
                 "strengths": analysis_result.get("strengths", []),
                 "weaknesses": analysis_result.get("weaknesses", []),
@@ -206,7 +211,7 @@ async def _build_generation_context(request: ArticleRequest) -> GenerationContex
     logger.info("Generation context built successfully")
     return GenerationContext(**context_data)
 
-async def _generate_with_quality_loop(context: GenerationContext, include_thai_translation: bool = False) -> Dict[str, Any]:
+async def _generate_with_quality_loop(context: GenerationContext, include_thai_translation: bool = False, selected_model: str = 'gpt-finetune') -> Dict[str, Any]:
     """Generate article with quality checking and iterative improvement"""
     
     iteration = 0
@@ -215,9 +220,13 @@ async def _generate_with_quality_loop(context: GenerationContext, include_thai_t
     while iteration < settings.MAX_QUALITY_ITERATIONS:
         iteration += 1
         
-        # Generate article
+        # Generate article using selected model
         try:
-            article_result = llm_service.generate_article(context, feedback)
+            logger.info(f"Using model: {selected_model}")
+            if selected_model == 'gemini-pro':
+                article_result = llm_service_gemini.generate_article(context, feedback)
+            else:
+                article_result = llm_service.generate_article(context, feedback)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error in article generation: {str(e)}")
         

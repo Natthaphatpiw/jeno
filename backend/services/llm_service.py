@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime
 from typing import Dict, Any, Optional
 from openai import OpenAI
 from config.settings import settings
@@ -301,6 +302,11 @@ IMPORTANT: You must respond in JSON format only. Return your response as a valid
         
         if feedback:
             prompt_parts.append(f"PREVIOUS FEEDBACK TO IMPROVE: {feedback}\n")
+        
+        # Add current date for context
+        current_date = datetime.now().strftime("%B %d, %Y")
+        prompt_parts.append(f"CURRENT DATE: {current_date}")
+        prompt_parts.append("Please ensure your article reflects current and up-to-date information as of this date.\n")
         
         prompt_parts.append("Generate a comprehensive article with the following specifications:\n")
         

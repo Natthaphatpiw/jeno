@@ -20,6 +20,7 @@ class ArticleRequest(BaseModel):
     seo_keywords: Optional[str] = None
     custom_prompt: Optional[str] = None  # User's custom instructions
     include_thai_translation: Optional[bool] = False  # Whether to generate Thai translation
+    selected_model: Optional[str] = 'gpt-finetune'  # Model selection
 
 class ImageSlot(BaseModel):
     id: str

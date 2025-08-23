@@ -18,6 +18,7 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [sourceUrls, setSourceUrls] = useState<string[]>(['']);
   const [urlInstructions, setUrlInstructions] = useState<UrlContentInstruction[]>([]);
+  const [selectedModel, setSelectedModel] = useState<'gpt-finetune' | 'gemini-pro'>('gpt-finetune');
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -98,6 +99,7 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
       sourceUrls: validUrls.length > 0 ? validUrls : undefined,
       urlInstructions: urlInstructions.length > 0 ? urlInstructions : undefined,
       includeThaiTranslation: formData.includeThaiTranslation === true,
+      selectedModel,
     };
     
     // Debug: Log request data
@@ -112,6 +114,7 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
     setUploadedFile(null);
     setSourceUrls(['']);
     setUrlInstructions([]);
+    setSelectedModel('gpt-finetune');
   };
 
   return (
@@ -138,6 +141,56 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Model Selection */}
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-dashed border-purple-200 rounded-2xl p-6">
+          <label className="flex items-center text-sm font-semibold text-dark-navy-700 mb-4">
+            <div className="w-5 h-5 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+              <svg className="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            AI Model Selection
+          </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label className={`flex items-center p-4 rounded-xl cursor-pointer transition-all ${
+              selectedModel === 'gpt-finetune' 
+                ? 'bg-purple-100 border-2 border-purple-300' 
+                : 'bg-white border-2 border-gray-200 hover:border-purple-200'
+            }`}>
+              <input
+                type="radio"
+                name="modelSelection"
+                value="gpt-finetune"
+                checked={selectedModel === 'gpt-finetune'}
+                onChange={(e) => setSelectedModel(e.target.value as 'gpt-finetune' | 'gemini-pro')}
+                className="w-4 h-4 text-purple-600 mr-3"
+              />
+              <div>
+                <div className="font-semibold text-dark-navy-700">GPT Fine-tuned</div>
+                <div className="text-sm text-gray-600">Specialized model trained on Jenosize content</div>
+              </div>
+            </label>
+            <label className={`flex items-center p-4 rounded-xl cursor-pointer transition-all ${
+              selectedModel === 'gemini-pro' 
+                ? 'bg-blue-100 border-2 border-blue-300' 
+                : 'bg-white border-2 border-gray-200 hover:border-blue-200'
+            }`}>
+              <input
+                type="radio"
+                name="modelSelection"
+                value="gemini-pro"
+                checked={selectedModel === 'gemini-pro'}
+                onChange={(e) => setSelectedModel(e.target.value as 'gpt-finetune' | 'gemini-pro')}
+                className="w-4 h-4 text-blue-600 mr-3"
+              />
+              <div>
+                <div className="font-semibold text-dark-navy-700">Gemini 2.5 Pro</div>
+                <div className="text-sm text-gray-600">Google's latest advanced AI model</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Topic Category */}
           <div>

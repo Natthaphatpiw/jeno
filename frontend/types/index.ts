@@ -17,6 +17,7 @@ export interface ArticleRequest {
   seoKeywords?: string;
   customPrompt?: string;  // Custom user instructions
   includeThaiTranslation?: boolean;  // Whether to generate Thai translation
+  selectedModel?: 'gpt-finetune' | 'gemini-pro';  // Model selection
 }
 
 export interface ImageSlot {

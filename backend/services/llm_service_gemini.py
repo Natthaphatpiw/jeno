@@ -1,7 +1,9 @@
 import json
 import logging
+from datetime import datetime
 from typing import Dict, Any, Optional
-from together import Together
+from google import genai
+from google.genai import types
 from config.settings import settings
 from models.schemas import GenerationContext, ArticleResponse, ArticleLayout, ImageSlot
 
@@ -9,51 +11,50 @@ from models.schemas import GenerationContext, ArticleResponse, ArticleLayout, Im
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-class LLMServiceTogether:
+class LLMServiceGemini:
     def __init__(self):
-        # Hardcoded Together AI API key and model
-        self.api_key = "74cc536c6a77ccd61c6a09a89e8a36e97c66ebdf95bce95e541b67da5c5a9b97"
-        self.client = Together(api_key=self.api_key)
-        self.finetuned_model = "devlab_ai/DeepSeek-R1-Distill-Qwen-14B-ft-3-7578db65"
-        
-        # GPT client for fallback (commented out)
-        # from openai import OpenAI
-        # self.openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        # Set API key as environment variable for Gemini client
+        import os
+        os.environ['GEMINI_API_KEY'] = settings.GEMINI_API_KEY
+        self.client = genai.Client()
+        self.model_name = "gemini-2.5-pro"
     
     def generate_article(self, context: GenerationContext, feedback: Optional[str] = None) -> Dict[str, Any]:
-        """Generate article content using Together AI fine-tuned model"""
+        """Generate article content using Gemini 2.5 Pro"""
         
-        logger.info("Starting article generation with Together AI")
+        logger.info("Starting article generation with Gemini")
         logger.info(f"Context: topic={context.topic_category}, industry={context.industry}")
-        logger.info(f"Model: {self.finetuned_model}")
+        logger.info(f"Model: {self.model_name}")
         logger.info(f"Has feedback: {feedback is not None}")
         
         system_prompt = self._get_system_prompt()
         user_prompt = self._build_user_prompt(context, feedback)
         
-        logger.info(f"System prompt length: {len(system_prompt)}")
-        logger.info(f"User prompt length: {len(user_prompt)}")
+        # Combine system and user prompts for Gemini
+        full_prompt = f"{system_prompt}\n\n{user_prompt}"
+        
+        logger.info(f"Full prompt length: {len(full_prompt)}")
         
         try:
-            logger.info("Calling Together AI for article generation...")
-            response = self.client.chat.completions.create(
-                model=self.finetuned_model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=4000,  # Adjusted for Together AI
-                temperature=0.7,
+            logger.info("Calling Gemini API for article generation...")
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=full_prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.7,
+                    max_output_tokens=8000,
+                    thinking_config=types.ThinkingConfig(thinking_budget=0)  # Disable thinking
+                )
             )
             
-            logger.info("Together AI call successful for article generation")
+            logger.info("Gemini API call successful for article generation")
             
-            content = response.choices[0].message.content
+            content = response.text
             logger.info(f"Response content length: {len(content) if content else 0}")
             
             if not content:
-                logger.error("Together AI returned empty content for article generation")
-                raise Exception("Together AI returned empty response")
+                logger.error("Gemini returned empty content for article generation")
+                raise Exception("Gemini returned empty response")
             
             # Try to parse as JSON first
             try:
@@ -86,56 +87,11 @@ class LLMServiceTogether:
                 }
             
         except Exception as e:
-            logger.error(f"Error in Together AI article generation: {str(e)}")
+            logger.error(f"Error in Gemini article generation: {str(e)}")
             logger.error(f"Error type: {type(e).__name__}")
             import traceback
             logger.error(f"Traceback: {traceback.format_exc()}")
-            
-            # Fallback to GPT (commented out)
-            # logger.info("Attempting fallback to OpenAI GPT...")
-            # return self._generate_article_gpt_fallback(context, feedback)
-            
-            raise Exception(f"Error generating article with Together AI: {str(e)}")
-    
-    # Commented out GPT fallback method
-    # def _generate_article_gpt_fallback(self, context: GenerationContext, feedback: Optional[str] = None) -> Dict[str, Any]:
-    #     """Fallback to GPT-4o if Together AI fails"""
-    #     logger.info("Using GPT fallback for article generation")
-    #     
-    #     system_prompt = self._get_system_prompt()
-    #     user_prompt = self._build_user_prompt(context, feedback)
-    #     
-    #     try:
-    #         response = self.openai_client.chat.completions.create(
-    #             model=settings.OPENAI_MODEL,
-    #             messages=[
-    #                 {"role": "system", "content": system_prompt},
-    #                 {"role": "user", "content": user_prompt}
-    #             ],
-    #             max_tokens=settings.MAX_TOKENS,
-    #             temperature=settings.TEMPERATURE,
-    #             response_format={"type": "json_object"}
-    #         )
-    #         
-    #         content = response.choices[0].message.content
-    #         if not content:
-    #             raise Exception("GPT returned empty response")
-    #         
-    #         result = json.loads(content)
-    #         
-    #         if 'content' in result and result['content']:
-    #             markdown_content = result['content']
-    #             return {
-    #                 'markdown_content': markdown_content,
-    #                 'layout': result.get('layout', {}),
-    #                 'source_usage_details': result.get('source_usage_details', [])
-    #             }
-    #         else:
-    #             raise Exception("GPT response missing content field")
-    #             
-    #     except Exception as e:
-    #         logger.error(f"GPT fallback also failed: {str(e)}")
-    #         raise Exception(f"Both Together AI and GPT failed: {str(e)}")
+            raise Exception(f"Error generating article with Gemini: {str(e)}")
     
     def _get_system_prompt(self) -> str:
         """Get the system prompt for article generation"""
@@ -322,6 +278,11 @@ Before completing your response, ensure:
         if feedback:
             prompt_parts.append(f"PREVIOUS FEEDBACK TO IMPROVE: {feedback}\n")
         
+        # Add current date for context
+        current_date = datetime.now().strftime("%B %d, %Y")
+        prompt_parts.append(f"CURRENT DATE: {current_date}")
+        prompt_parts.append("Please ensure your article reflects current and up-to-date information as of this date.\n")
+        
         prompt_parts.append("Generate a comprehensive article with the following specifications:\n")
         
         if context.topic_category:
@@ -389,36 +350,38 @@ Before completing your response, ensure:
         return "\n".join(prompt_parts)
     
     def analyze_article(self, content: str, context: GenerationContext) -> Dict[str, Any]:
-        """Generate analysis and feedback for the article using Together AI"""
+        """Generate analysis and feedback for the article using Gemini"""
         
-        logger.info("Starting article analysis with Together AI")
+        logger.info("Starting article analysis with Gemini")
         
         system_prompt = self._get_analysis_system_prompt()
         user_prompt = self._build_analysis_user_prompt(content, context)
         
-        logger.info(f"Analysis system prompt length: {len(system_prompt)}")
-        logger.info(f"Analysis user prompt length: {len(user_prompt)}")
+        # Combine system and user prompts for Gemini
+        full_prompt = f"{system_prompt}\n\n{user_prompt}"
+        
+        logger.info(f"Analysis full prompt length: {len(full_prompt)}")
         
         try:
-            logger.info("Calling Together AI for article analysis...")
-            response = self.client.chat.completions.create(
-                model=self.finetuned_model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=1000,
-                temperature=0.3,
+            logger.info("Calling Gemini API for article analysis...")
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=full_prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.3,
+                    max_output_tokens=1000,
+                    thinking_config=types.ThinkingConfig(thinking_budget=0)  # Disable thinking
+                )
             )
             
-            logger.info("Together AI call successful for article analysis")
+            logger.info("Gemini API call successful for article analysis")
             
-            content_response = response.choices[0].message.content
+            content_response = response.text
             logger.info(f"Analysis response content length: {len(content_response) if content_response else 0}")
             
             if not content_response:
-                logger.error("Together AI returned empty content for article analysis")
-                raise Exception("Together AI returned empty analysis response")
+                logger.error("Gemini returned empty content for article analysis")
+                raise Exception("Gemini returned empty analysis response")
             
             # Try to parse as JSON
             try:
@@ -437,7 +400,7 @@ Before completing your response, ensure:
                 }
             
         except Exception as e:
-            logger.error(f"Error in Together AI article analysis: {str(e)}")
+            logger.error(f"Error in Gemini article analysis: {str(e)}")
             logger.error(f"Error type: {type(e).__name__}")
             import traceback
             logger.error(f"Traceback: {traceback.format_exc()}")
