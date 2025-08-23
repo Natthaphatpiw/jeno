@@ -1,3 +1,0 @@
-ft:gpt-4.1-mini-2025-04-14:codelabdev:jenosize-content:C7LDOFr7
-
-python test_model.py ft:gpt-4.1-mini-2025-04-14:codelabdev:jenosize-content:C7LDOFr7

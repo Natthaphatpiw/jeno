@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ArticleRequest, ArticleResponse } from '../types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -31,6 +31,7 @@ export const articleAPI = {
         seo_keywords: request.seoKeywords,
         custom_prompt: request.customPrompt,
         include_thai_translation: request.includeThaiTranslation,
+        selected_model: request.selectedModel,
       }, {
         signal
       });

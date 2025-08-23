@@ -1,37 +1,28 @@
-# Jenosize Article Generator
+# Agentic AI Article Generation System
 
-An AI-powered content generation tool that creates high-quality business articles about trends and future ideas. Built with FastAPI backend and Next.js frontend, utilizing GPT-4o for intelligent content creation.
+![System Architecture](https://img.shields.io/badge/Architecture-Agentic%20AI-blue) ![Models](https://img.shields.io/badge/Models-GPT%20%2B%20Gemini-green) ![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
+
+An intelligent article generation system that combines multiple AI models, web scraping, and quality assessment to produce high-quality business content. Built for Jenosize Digital Transformation Consultancy with agentic AI architecture for self-improving content generation.
 
 ## 🚀 Features
 
-### Backend (FastAPI)
-- **Modular Architecture**: Clean separation of concerns with services, models, and utilities
-- **GPT-4o Integration**: Advanced AI content generation with quality checking
-- **Web Scraping**: Extract content from URLs using BeautifulSoup
-- **PDF Processing**: OCR and text extraction from uploaded documents
-- **Quality Loop**: Iterative content improvement with quality scoring
-- **RESTful API**: Well-documented endpoints with proper error handling
-
-### Frontend (Next.js)
-- **Modern React**: Built with Next.js 14, TypeScript, and Tailwind CSS
-- **Interactive Form**: Intuitive input form with drag-and-drop file upload
-- **Real-time Progress**: Live updates during article generation
-- **Image Management**: Upload and manage images for article enhancement
-- **PDF Export**: Generate professional PDFs with custom layouts
-- **Responsive Design**: Works seamlessly on desktop and mobile
-
-### Key Capabilities
-- Generate articles from various inputs (topics, URLs, PDFs, keywords)
-- Quality assessment and iterative improvement
-- Image placement suggestions and upload functionality
-- Professional PDF export with custom styling
-- Jenosize brand alignment and tone consistency
+- **Multi-Model AI**: Choose between GPT-4.1-mini (fine-tuned) and Gemini 2.5 Pro
+- **Agentic Architecture**: Self-improving content with quality assessment loops
+- **Flexible Inputs**: All fields optional - topic, industry, URLs, PDFs, custom prompts
+- **Web Content Integration**: Scrape and integrate up to 5 web sources
+- **PDF Processing**: Upload and extract content from PDF documents
+- **Bilingual Support**: Optional Thai translation with layout preservation
+- **Quality Assessment**: AI-powered content evaluation and iterative improvement
+- **Export Capabilities**: PDF generation with quality metrics
+- **Fine-tuning Pipeline**: Complete data engineering workflow for model customization
+- **Production Ready**: Scalable architecture with comprehensive error handling
 
 ## 📋 Prerequisites
 
 - **Python 3.11+**
 - **Node.js 18+**
-- **OpenAI API Key** (GPT-4o access required)
+- **OpenAI API Key** (GPT-4.1-mini fine-tuned access)
+- **Gemini API Key** (hardcoded in system)
 - **Docker & Docker Compose** (optional, for containerized deployment)
 
 ## 🛠️ Installation & Setup
@@ -58,8 +49,8 @@ docker-compose up --build
 
 4. **Access the Application**
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API Documentation: http://localhost:8000/docs
+- Backend API: http://localhost:5000
+- API Documentation: http://localhost:5000/docs
 
 ### Method 2: Manual Setup
 
@@ -89,7 +80,7 @@ cp .env.example .env
 
 5. **Run the backend**
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload --host 0.0.0.0 --port 5000
 ```
 
 #### Frontend Setup
@@ -107,7 +98,7 @@ npm install
 3. **Configure environment**
 ```bash
 cp .env.local.example .env.local
-# Edit .env.local if needed (default API URL: http://localhost:8000)
+# Edit .env.local if needed (default API URL: http://localhost:5000)
 ```
 
 4. **Run the frontend**
@@ -126,10 +117,12 @@ jetask/
 │   │   └── endpoints/
 │   │       └── article.py     # Article generation endpoints
 │   ├── services/
-│   │   ├── llm_service.py     # GPT-4o integration
+│   │   ├── llm_service.py     # GPT-4.1-mini integration
+│   │   ├── llm_service_gemini.py # Gemini 2.5 Pro integration
 │   │   ├── web_scraper.py     # URL content extraction
 │   │   ├── pdf_processor.py   # PDF text extraction
-│   │   └── quality_checker.py # Content quality evaluation
+│   │   ├── quality_checker.py # Content quality evaluation
+│   │   └── translation_service.py # Thai translation
 │   ├── models/
 │   │   └── schemas.py         # Pydantic models
 │   ├── utils/
@@ -143,10 +136,11 @@ jetask/
 │   │   ├── page.tsx          # Homepage
 │   │   └── globals.css       # Global styles
 │   ├── components/
-│   │   ├── InputForm.tsx     # Article generation form
+│   │   ├── InputForm.tsx     # Article generation form with model selection
 │   │   ├── ArticleDisplay.tsx # Article viewing component
 │   │   ├── ImageUploader.tsx  # Image upload component
-│   │   └── PDFExporter.tsx    # PDF export functionality
+│   │   ├── PDFExporter.tsx    # PDF export functionality
+│   │   └── UrlInstructionsForm.tsx # URL content instruction form
 │   ├── services/
 │   │   └── api.ts            # API client
 │   ├── types/
@@ -155,34 +149,48 @@ jetask/
 │   │   └── helpers.ts        # Utility functions
 │   ├── package.json          # Node.js dependencies
 │   └── Dockerfile           # Frontend Docker configuration
+├── data-pipeline/             # Data Engineering Pipeline
+│   ├── finetuning/           # Fine-tuning scripts and tools
+│   │   ├── data_checker.py   # Data validation and upload
+│   │   ├── start_finetuning.py # LoRA fine-tuning
+│   │   ├── monitor_finetuning.py # Training monitoring
+│   │   └── complete_pipeline.py # End-to-end pipeline
+│   ├── scrapers/             # Web scraping tools
+│   ├── processors/           # Content processing
+│   └── output/              # Training data and results
 ├── docker-compose.yml        # Multi-container setup
 ├── .env.example             # Environment variables template
-└── README.md               # Documentation
+├── SYSTEM_REPORT.md         # Technical documentation
+└── README.md               # Setup documentation
 ```
 
 ## 🎯 Usage Guide
 
 ### 1. Article Generation
 
-1. **Fill the Input Form** (all fields optional):
+1. **Select AI Model**: Choose between GPT Fine-tuned or Gemini 2.5 Pro
+2. **Fill the Input Form** (all fields optional):
    - **Topic Category**: e.g., "Digital Transformation", "AI", "Sustainability"
    - **Industry**: Select from dropdown or specify custom
    - **Target Audience**: e.g., "C-level executives", "Small business owners"
-   - **Source URL**: Provide URL for content scraping
+   - **Source URLs**: Up to 5 URLs for content scraping
    - **PDF Upload**: Drag and drop PDF documents
    - **SEO Keywords**: Comma-separated keywords for optimization
+   - **Custom Instructions**: Specific requirements for content generation
+   - **Thai Translation**: Optional bilingual output
 
-2. **Generate Article**: Click "Generate Article" to start the process
+3. **Generate Article**: Click "Generate Article" to start the agentic process
 
-3. **Monitor Progress**: Watch real-time progress updates during generation
+4. **Monitor Progress**: Watch real-time progress through quality assessment loops
 
-### 2. Quality Process
+### 2. Agentic Quality Process
 
-The system implements a quality loop:
-- **Generation**: GPT-4o creates initial content
-- **Evaluation**: Quality checker scores the article (0-1 scale)
-- **Iteration**: If score < 0.85, feedback is provided for regeneration
-- **Maximum 3 iterations** to ensure efficiency
+The system implements an intelligent quality loop:
+- **Generation**: Selected AI model creates initial content with current date context
+- **Evaluation**: Secondary AI evaluates and scores the article (0-1 scale)
+- **Self-Improvement**: If score < 0.85, specific feedback guides regeneration
+- **Iterative Enhancement**: Maximum 3 cycles for optimal quality/efficiency balance
+- **Multi-source Integration**: Intelligent blending of web content, PDFs, and user inputs
 
 ### 3. Image Management
 
@@ -206,11 +214,12 @@ The system implements a quality loop:
 #### Backend (.env)
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
+# Gemini API key is hardcoded in settings.py
 ```
 
 #### Frontend (.env.local)
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
 ### Customization Options
@@ -220,8 +229,10 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 MAX_QUALITY_ITERATIONS = 3     # Maximum regeneration attempts
 QUALITY_THRESHOLD = 0.85       # Minimum quality score
 REQUEST_TIMEOUT = 10           # Web scraping timeout
-MAX_TOKENS = 4000             # GPT-4o token limit
+MAX_TOKENS = 8000             # Token limit for generation
 TEMPERATURE = 0.7             # AI creativity setting
+OPENAI_MODEL = "ft:gpt-4.1-mini-2025-04-14:codelabdev:jenosize-content:C7SVORLy"
+GEMINI_API_KEY = "hardcoded_in_settings"  # Gemini API key
 ```
 
 #### Frontend Styling
@@ -231,40 +242,53 @@ TEMPERATURE = 0.7             # AI creativity setting
 
 ## 📡 API Documentation
 
-### Endpoints
+### Primary Endpoint
 
 #### POST /api/generate-article
-Generate an article based on provided parameters.
+Generate articles with agentic AI and multi-model support.
 
-**Request Body:**
+**Request Body (all fields optional):**
 ```json
 {
-  "topic_category": "Digital Transformation",
+  "topicCategory": "Digital Transformation",
   "industry": "Technology",
-  "target_audience": "Business leaders",
-  "source_url": "https://example.com/article",
-  "pdf_base64": "base64_encoded_pdf_content",
-  "seo_keywords": "digital, transformation, business"
+  "targetAudience": "C-level executives",
+  "sourceUrls": [
+    "https://example.com/article1",
+    "https://example.com/article2"
+  ],
+  "pdfBase64": "base64_encoded_pdf_content",
+  "seoKeywords": "AI, automation, business transformation",
+  "customPrompt": "Focus on implementation strategies",
+  "includeThaiTranslation": false,
+  "selectedModel": "gpt-finetune"
 }
 ```
 
 **Response:**
 ```json
 {
-  "content": "Generated article HTML content",
+  "content": "# Article Title\n\nGenerated markdown content...",
   "layout": {
-    "sections": ["Introduction", "Main Content", "Conclusion"],
-    "image_slots": [
+    "sections": ["Executive Summary", "Introduction", "Analysis"],
+    "imageSlots": [
       {
         "id": "img_1",
-        "description": "Chart showing digital adoption trends",
+        "description": "Strategic framework diagram",
         "position": "introduction",
-        "suggested_type": "chart"
+        "suggestedType": "infographic"
       }
     ]
   },
-  "quality_score": 0.92,
-  "iterations": 2
+  "qualityScore": 0.87,
+  "iterations": 2,
+  "analysis": {
+    "strengths": ["Clear structure", "Data-driven insights"],
+    "weaknesses": ["Needs more examples"],
+    "recommendations": ["Add case studies"],
+    "summary": "High-quality strategic analysis"
+  },
+  "thaiContent": "# หัวข้อบทความ..."
 }
 ```
 
@@ -298,25 +322,55 @@ docker-compose logs -f
 docker-compose up --scale backend=2 --scale frontend=2
 ```
 
-### Health Monitoring
+### Fine-tuning Pipeline
 
-Both services include health checks:
-- **Backend**: `/api/health` endpoint monitoring
-- **Frontend**: HTTP availability check
-- **Auto-restart**: Services restart automatically on failure
+The system includes complete data engineering tools:
+
+```bash
+cd data-pipeline/finetuning
+
+# Validate and upload training data
+python data_checker.py
+
+# Start LoRA fine-tuning with Together AI
+python start_finetuning.py
+
+# Monitor training progress
+python monitor_finetuning.py
+
+# Run complete pipeline
+python complete_pipeline.py
+```
+
+### Deployment for http://43.209.0.15:5000
+
+1. **Configure ports to avoid conflicts** (3000, 8000, 8001 occupied):
+   ```bash
+   # Backend on port 5000
+   uvicorn main:app --host 0.0.0.0 --port 5000
+   
+   # Frontend on port 3001 
+   npm start -- --port 3001
+   ```
+
+2. **Health monitoring**:
+   - Backend: `/api/health` endpoint
+   - Auto-restart on failure
 
 ## 🚨 Troubleshooting
 
 ### Common Issues
 
-#### 1. OpenAI API Errors
+#### 1. AI Model API Errors
 ```bash
-# Check API key configuration
+# Check OpenAI API key
 echo $OPENAI_API_KEY
 
-# Verify API access
-curl -H "Authorization: Bearer $OPENAI_API_KEY" \
-     https://api.openai.com/v1/models
+# Test Gemini API (key is hardcoded)
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent" \
+  -H 'Content-Type: application/json' \
+  -H 'X-goog-api-key: YOUR_GEMINI_KEY' \
+  -X POST -d '{"contents":[{"parts":[{"text":"Test"}]}]}'
 ```
 
 #### 2. CORS Issues

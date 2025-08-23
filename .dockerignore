@@ -1,59 +1,65 @@
+# Common
+.git
+.gitignore
+README.md
+SYSTEM_REPORT.md
+.env*
+.DS_Store
+*.md
+.vscode
+.idea
+*.swp
+*.swo
+Thumbs.db
+
 # Dependencies
-node_modules
-__pycache__
+node_modules/
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
 pip-log.txt
 pip-delete-this-directory.txt
-.venv
+.pytest_cache/
+
+# Virtual environments
+.venv/
 venv/
-.env
-
-# IDE
-.vscode
-.idea
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Git
-.git
-.gitignore
-
-# Logs
-*.log
-logs
-
-# Runtime data
-pids
-*.pid
-*.seed
-
-# Coverage directory used by tools like istanbul
-coverage
-
-# Dependency directories
-node_modules/
-
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
+backend/venv/
+frontend/node_modules/
 
 # Build outputs
-.next
-dist
-build
+.next/
+out/
+dist/
+build/
+coverage/
 
-# Environment variables
+# Runtime data
+pids/
+*.pid
+*.seed
+*.log
+logs/
+temp/
+uploads/
+
+# Environment files
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Data pipeline (exclude from production builds)
+data-pipeline/
+
+# Docker
+docker-compose.override.yml
+*.dockerfile
+Dockerfile.dev
+
+# Optional caches
+.npm
+.node_repl_history

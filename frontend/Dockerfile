@@ -1,51 +1,46 @@
-FROM node:18-alpine AS base
+# Simple Frontend Dockerfile 
+FROM node:18-slim
 
-# Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* ./
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
 RUN npm ci
 
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Copy source code
 COPY . .
 
 # Build the application
 RUN npm run build
 
-# Production image, copy all the files and run next
-FROM base AS runner
-WORKDIR /app
+# Create user
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs nextjs && \
+    chown -R nextjs:nodejs /app
 
-ENV NODE_ENV production
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/public ./public
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Automatically leverage output traces to reduce image size
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
+# Switch to non-root user
 USER nextjs
 
-EXPOSE 3000
+# Configure environment
+ENV NODE_ENV=production
+ENV PORT=3001
+ENV HOSTNAME="0.0.0.0"
+ENV NEXT_PUBLIC_API_URL="http://localhost:5000"
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+# Expose port
+EXPOSE 3001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+    CMD curl -f http://localhost:3001/ || exit 1
 
-CMD ["node", "server.js"]
+# Start the application
+CMD ["npm", "start"]
