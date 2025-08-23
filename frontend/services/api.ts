@@ -30,6 +30,7 @@ export const articleAPI = {
         pdf_base64: request.pdfBase64,
         seo_keywords: request.seoKeywords,
         custom_prompt: request.customPrompt,
+        include_thai_translation: request.includeThaiTranslation,
       }, {
         signal
       });
@@ -67,6 +68,21 @@ export const articleAPI = {
           weaknesses: response.data.analysis.weaknesses,
           recommendations: response.data.analysis.recommendations,
           summary: response.data.analysis.summary,
+        } : undefined,
+        thaiContent: response.data.thai_content,
+        thaiLayout: response.data.thai_layout ? {
+          sections: response.data.thai_layout.sections,
+          imageSlots: response.data.thai_layout.image_slots?.map((slot: any) => ({
+            id: slot.id,
+            description: slot.description,
+            position: slot.position,
+            suggestedType: slot.suggested_type,
+            placementRationale: slot.placement_rationale,
+            contentGuidance: slot.content_guidance,
+            dimensions: slot.dimensions,
+            aspectRatio: slot.aspect_ratio,
+            alternatives: slot.alternatives,
+          })) || [],
         } : undefined,
       };
     } catch (error) {

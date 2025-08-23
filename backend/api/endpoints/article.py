@@ -95,6 +95,8 @@ async def generate_article(request: ArticleRequest):
     logger.info(f"Request parameters: topic={request.topic_category}, industry={request.industry}")
     logger.info(f"Has source URL: {bool(request.source_url)}")
     logger.info(f"Has PDF: {bool(request.pdf_base64)}")
+    logger.info(f"Raw include_thai_translation: {repr(request.include_thai_translation)}")
+    logger.info(f"Type of include_thai_translation: {type(request.include_thai_translation)}")
     
     try:
         # Build generation context

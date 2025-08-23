@@ -44,7 +44,7 @@ class TranslationService:
             
             logger.info("Calling OpenAI API for Thai translation...")
             response = self.client.chat.completions.create(
-                model="gpt-4o",  # Use GPT-4o for better Thai translation
+                model="gpt-4.1-mini",  # Use GPT-4o for better Thai translation
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
