@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileText, Link, Target, Building, Hash, Plus, X, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { ArticleRequest } from '../types';
+import { ArticleRequest, UrlContentInstruction } from '../types';
 import { convertFileToBase64, validateUrl } from '../utils/helpers';
+import UrlInstructionsForm from './UrlInstructionsForm';
 
 interface InputFormProps {
   onSubmit: (request: ArticleRequest) => void;
@@ -16,6 +17,7 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
   const [formData, setFormData] = useState<ArticleRequest>({});
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [sourceUrls, setSourceUrls] = useState<string[]>(['']);
+  const [urlInstructions, setUrlInstructions] = useState<UrlContentInstruction[]>([]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -87,7 +89,13 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
       ...formData,
       pdfBase64,
       sourceUrls: validUrls.length > 0 ? validUrls : undefined,
+      urlInstructions: urlInstructions.length > 0 ? urlInstructions : undefined,
+      includeThaiTranslation: formData.includeThaiTranslation === 'true',
     };
+    
+    // Debug: Log request data
+    console.log('Submitting request:', request);
+    console.log('Include Thai Translation:', request.includeThaiTranslation);
 
     onSubmit(request);
   };
@@ -96,6 +104,7 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
     setFormData({});
     setUploadedFile(null);
     setSourceUrls(['']);
+    setUrlInstructions([]);
   };
 
   return (
@@ -235,6 +244,13 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
           </p>
         </div>
 
+        {/* URL Instructions Form */}
+        <UrlInstructionsForm 
+          sourceUrls={sourceUrls}
+          urlInstructions={urlInstructions}
+          onInstructionsChange={setUrlInstructions}
+        />
+
         {/* PDF Upload */}
         <div>
           <label className="flex items-center text-sm font-semibold text-dark-navy-700 mb-3">
@@ -315,6 +331,37 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
           <p className="text-xs text-gray-500 mt-2 ml-8">
             Provide specific instructions to customize how the AI generates your article
           </p>
+        </div>
+
+        {/* Thai Translation Option */}
+        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-dashed border-orange-200 rounded-2xl p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-6 h-6 bg-orange-100 rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-5 h-5 text-orange-600 bg-white border-gray-300 rounded focus:ring-orange-500 focus:ring-2 mr-3"
+                  checked={formData.includeThaiTranslation === 'true'}
+                  onChange={(e) => {
+                    console.log('Checkbox changed:', e.target.checked);
+                    handleInputChange('includeThaiTranslation', e.target.checked.toString());
+                  }}
+                />
+                <div>
+                  <span className="text-lg font-semibold text-orange-800">Generate Thai Translation</span>
+                  <p className="text-sm text-orange-700 mt-1">
+                    Automatically translate the article to professional Thai using advanced AI. 
+                    <strong className="text-orange-800"> Note:</strong> This uses additional tokens and will take longer.
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
         </div>
 
         {/* Submit Buttons */}

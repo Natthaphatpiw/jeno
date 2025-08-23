@@ -1,5 +1,5 @@
 {
-  "discovery_time": "2025-08-22T16:17:15.435563",
+  "discovery_time": "2025-08-23T01:54:59.370282",
   "total_links": 38,
   "category_stats": {
     "total_articles": 38,
@@ -11,11 +11,11 @@
       "experience-the-new-world": 4
     },
     "categories": [
-      "experience-the-new-world",
-      "utility-for-our-world",
+      "understand-people-and-consumer",
       "futurist",
+      "experience-the-new-world",
       "transformation-and-technology",
-      "understand-people-and-consumer"
+      "utility-for-our-world"
     ],
     "total_categories": 5
   },

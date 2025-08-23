@@ -12,3 +12,4 @@ html5lib
 markdownify
 selenium
 webdriver-manager
+openai>=1.0.0

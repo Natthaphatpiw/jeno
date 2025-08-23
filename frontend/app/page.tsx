@@ -67,6 +67,11 @@ export default function HomePage() {
         return;
       }
       
+      // Debug: Log API response
+      console.log('API Response:', response);
+      console.log('Has thaiContent:', !!response.thaiContent);
+      console.log('Thai content length:', response.thaiContent?.length || 0);
+      
       setArticle(response);
       setCurrentView('result');
       setGenerationStatus({

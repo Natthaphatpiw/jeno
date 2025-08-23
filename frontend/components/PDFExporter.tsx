@@ -13,9 +13,10 @@ interface PDFExporterProps {
   article: ArticleResponse;
   uploadedImages: Map<string, UploadedImage>;
   onClose: () => void;
+  showThai?: boolean;  // Whether to use Thai content
 }
 
-export default function PDFExporter({ article, uploadedImages, onClose }: PDFExporterProps) {
+export default function PDFExporter({ article, uploadedImages, onClose, showThai = false }: PDFExporterProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [includeImages, setIncludeImages] = useState(true);
   const [includeQualityInfo, setIncludeQualityInfo] = useState(true);
@@ -29,14 +30,18 @@ export default function PDFExporter({ article, uploadedImages, onClose }: PDFExp
     console.log('📊 Include quality info:', includeQualityInfo);
     
     try {
+      // Get current content based on language selection
+      const currentContent = showThai && article.thaiContent ? article.thaiContent : article.content;
+      const currentLayout = showThai && article.thaiLayout ? article.thaiLayout : article.layout;
+      
       // Prepare content for AI PDF generation
-      let processedContent = article.content;
+      let processedContent = currentContent;
       
       if (includeImages) {
         // Replace image placeholders with descriptions for AI
         processedContent = processedContent.replace(/!\{\{([^}]+)\}\}\(placeholder\)/g, (match, imageId) => {
           const uploadedImage = uploadedImages.get(imageId);
-          const imageSlot = article.layout.imageSlots.find(slot => slot.id === imageId);
+          const imageSlot = currentLayout.imageSlots.find(slot => slot.id === imageId);
           
           if (uploadedImage) {
             return `[IMAGE: ${imageSlot?.description || uploadedImage.file.name}]`;
@@ -190,7 +195,7 @@ export default function PDFExporter({ article, uploadedImages, onClose }: PDFExp
         // Replace image placeholders with actual images or styled placeholders
         processedContent = processedContent.replace(/!\{\{([^}]+)\}\}\(placeholder\)/g, (match, imageId) => {
           const uploadedImage = uploadedImages.get(imageId);
-          const imageSlot = article.layout.imageSlots.find(slot => slot.id === imageId);
+          const imageSlot = currentLayout.imageSlots.find(slot => slot.id === imageId);
           
           if (uploadedImage) {
             return `<div style="text-align: center; margin: 20px 0;">

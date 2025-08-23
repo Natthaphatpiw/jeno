@@ -1,0 +1,158 @@
+[
+  {
+    "object": "fine_tuning.job",
+    "id": "ftjob-o8wO1n5tM5xxbJyPTTID8Qs6",
+    "model": "gpt-4.1-mini-2025-04-14",
+    "created_at": 1755863449,
+    "finished_at": null,
+    "fine_tuned_model": null,
+    "organization_id": "org-ChTqA6ZZ6edvnSKzq7e8Rq9r",
+    "result_files": [],
+    "status": "validating_files",
+    "validation_file": "file-Xe8sosb5bfZpkhB71bjj37",
+    "training_file": "file-JheDhVVEtE7v7gHyExFpqF",
+    "hyperparameters": {
+      "n_epochs": "auto",
+      "batch_size": "auto",
+      "learning_rate_multiplier": "auto"
+    },
+    "trained_tokens": null,
+    "error": {},
+    "user_provided_suffix": "jenosize-content",
+    "seed": 224528236,
+    "estimated_finish": null,
+    "integrations": [],
+    "metadata": null,
+    "usage_metrics": null,
+    "shared_with_openai": false,
+    "eval_id": null,
+    "method": {
+      "type": "supervised",
+      "supervised": {
+        "hyperparameters": {
+          "batch_size": "auto",
+          "learning_rate_multiplier": "auto",
+          "n_epochs": "auto"
+        }
+      }
+    },
+    "created_at_local": "2025-08-22T18:50:49.496960",
+    "config_used": {
+      "api_key": "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",
+      "base_url": "https://api.openai.com/v1",
+      "base_model": "gpt-4.1-mini-2025-04-14",
+      "training_file_path": "/Users/piw/Downloads/jetask/data-pipeline/output/train.jsonl",
+      "validation_file_path": "/Users/piw/Downloads/jetask/data-pipeline/output/validation.jsonl",
+      "n_epochs": null,
+      "batch_size": null,
+      "learning_rate_multiplier": null,
+      "suffix": "jenosize-content",
+      "jobs_file": "/Users/piw/Downloads/jetask/data-pipeline/finetuning/jobs.json",
+      "logs_dir": "/Users/piw/Downloads/jetask/data-pipeline/finetuning/logs"
+    }
+  },
+  {
+    "object": "fine_tuning.job",
+    "id": "ftjob-uEkuSbe2iDyuimdJi270ikVC",
+    "model": "gpt-4.1-mini-2025-04-14",
+    "created_at": 1755879739,
+    "finished_at": null,
+    "fine_tuned_model": null,
+    "organization_id": "org-ChTqA6ZZ6edvnSKzq7e8Rq9r",
+    "result_files": [],
+    "status": "validating_files",
+    "validation_file": "file-3toLTZNyYT3R8sjVoQW1zS",
+    "training_file": "file-MTGfNtrPADcLpeTVSHeWoB",
+    "hyperparameters": {
+      "n_epochs": "auto",
+      "batch_size": "auto",
+      "learning_rate_multiplier": "auto"
+    },
+    "trained_tokens": null,
+    "error": {},
+    "user_provided_suffix": "jenosize-content",
+    "seed": 1260431502,
+    "estimated_finish": null,
+    "integrations": [],
+    "metadata": null,
+    "usage_metrics": null,
+    "shared_with_openai": false,
+    "eval_id": null,
+    "method": {
+      "type": "supervised",
+      "supervised": {
+        "hyperparameters": {
+          "batch_size": "auto",
+          "learning_rate_multiplier": "auto",
+          "n_epochs": "auto"
+        }
+      }
+    },
+    "created_at_local": "2025-08-22T23:22:17.514054",
+    "config_used": {
+      "api_key": "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",
+      "base_url": "https://api.openai.com/v1",
+      "base_model": "gpt-4.1-mini-2025-04-14",
+      "training_file_path": "/Users/piw/Downloads/jetask/data-pipeline/output/train.jsonl",
+      "validation_file_path": "/Users/piw/Downloads/jetask/data-pipeline/output/validation.jsonl",
+      "n_epochs": null,
+      "batch_size": null,
+      "learning_rate_multiplier": null,
+      "suffix": "jenosize-content",
+      "jobs_file": "/Users/piw/Downloads/jetask/data-pipeline/finetuning/jobs.json",
+      "logs_dir": "/Users/piw/Downloads/jetask/data-pipeline/finetuning/logs"
+    }
+  },
+  {
+    "object": "fine_tuning.job",
+    "id": "ftjob-QV0SjTYxujrbPW4c5pYTaRP5",
+    "model": "gpt-4.1-mini-2025-04-14",
+    "created_at": 1755891671,
+    "finished_at": null,
+    "fine_tuned_model": null,
+    "organization_id": "org-ChTqA6ZZ6edvnSKzq7e8Rq9r",
+    "result_files": [],
+    "status": "validating_files",
+    "validation_file": "file-5SuL6qk164WWtd7Q75WEYV",
+    "training_file": "file-8pwBBRAcYqPkUD8ZUbzFTL",
+    "hyperparameters": {
+      "n_epochs": "auto",
+      "batch_size": "auto",
+      "learning_rate_multiplier": "auto"
+    },
+    "trained_tokens": null,
+    "error": {},
+    "user_provided_suffix": "jenosize-content",
+    "seed": 952347100,
+    "estimated_finish": null,
+    "integrations": [],
+    "metadata": null,
+    "usage_metrics": null,
+    "shared_with_openai": false,
+    "eval_id": null,
+    "method": {
+      "type": "supervised",
+      "supervised": {
+        "hyperparameters": {
+          "batch_size": "auto",
+          "learning_rate_multiplier": "auto",
+          "n_epochs": "auto"
+        }
+      }
+    },
+    "created_at_local": "2025-08-23T02:41:11.820432",
+    "config_used": {
+      "api_key": "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",
+      "base_url": "https://api.openai.com/v1",
+      "base_model": "gpt-4.1-mini-2025-04-14",
+      "training_file_path": "/Users/piw/Downloads/jetask/data-pipeline/output/clean_training_data_train.jsonl",
+      "validation_file_path": "/Users/piw/Downloads/jetask/data-pipeline/output/clean_training_data_validation.jsonl",
+      "n_epochs": null,
+      "batch_size": null,
+      "learning_rate_multiplier": null,
+      "suffix": "jenosize-content",
+      "jobs_file": "/Users/piw/Downloads/jetask/data-pipeline/finetuning/jobs.json",
+      "logs_dir": "/Users/piw/Downloads/jetask/data-pipeline/finetuning/logs"
+    }
+  }
+]

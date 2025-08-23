@@ -9,6 +9,7 @@ from services.web_scraper import WebScraperService
 from services.pdf_processor import PDFProcessorService
 from services.quality_checker import QualityCheckerService
 from services.pdf_generator import PDFGeneratorService
+from services.translation_service import TranslationService
 from utils.helpers import parse_seo_keywords, validate_url
 from config.settings import settings
 
@@ -24,6 +25,7 @@ web_scraper = WebScraperService()
 pdf_processor = PDFProcessorService()
 quality_checker = QualityCheckerService()
 pdf_generator = PDFGeneratorService()
+translation_service = TranslationService()
 
 class PDFGenerationRequest(BaseModel):
     content: str
@@ -33,6 +35,19 @@ class PDFGenerationRequest(BaseModel):
 
 class PDFGenerationResponse(BaseModel):
     pdf_base64: str
+
+class TranslationRequest(BaseModel):
+    markdown_content: str
+    layout: dict = {}
+    source_usage_details: list = []
+
+class TranslationResponse(BaseModel):
+    markdown_content: str
+    layout: dict
+    source_usage_details: list
+    translation_success: bool
+    translation_notes: list = []
+    error: str = None
 
 @router.post("/generate-pdf", response_model=PDFGenerationResponse)
 async def generate_pdf(request: PDFGenerationRequest):
@@ -89,7 +104,8 @@ async def generate_article(request: ArticleRequest):
         
         # Generate article with quality loop
         logger.info("Starting article generation with quality loop...")
-        article_data = await _generate_with_quality_loop(context)
+        logger.info(f"Request include_thai_translation: {request.include_thai_translation}")
+        article_data = await _generate_with_quality_loop(context, request.include_thai_translation)
         logger.info("Article generation completed successfully")
         
         # Generate article analysis
@@ -188,7 +204,7 @@ async def _build_generation_context(request: ArticleRequest) -> GenerationContex
     logger.info("Generation context built successfully")
     return GenerationContext(**context_data)
 
-async def _generate_with_quality_loop(context: GenerationContext) -> Dict[str, Any]:
+async def _generate_with_quality_loop(context: GenerationContext, include_thai_translation: bool = False) -> Dict[str, Any]:
     """Generate article with quality checking and iterative improvement"""
     
     iteration = 0
@@ -204,7 +220,7 @@ async def _generate_with_quality_loop(context: GenerationContext) -> Dict[str, A
             raise HTTPException(status_code=500, detail=f"Error in article generation: {str(e)}")
         
         # Extract content and layout
-        content = article_result.get("content", "")
+        content = article_result.get("markdown_content", "") or article_result.get("content", "")
         layout_data = article_result.get("layout", {})
         
         if not content:
@@ -225,27 +241,86 @@ async def _generate_with_quality_loop(context: GenerationContext) -> Dict[str, A
         
         # Check if quality meets threshold
         if quality_feedback.score >= settings.QUALITY_THRESHOLD:
-            # Quality is acceptable, return result
-            return {
+            # Quality is acceptable, prepare result
+            result = {
                 "content": content,
                 "layout": _parse_layout(layout_data),
                 "quality_score": quality_feedback.score,
                 "iterations": iteration,
                 "source_usage_details": article_result.get("source_usage_details", [])
             }
+            
+            # Generate Thai translation if requested
+            logger.info(f"Include Thai translation flag: {include_thai_translation}")
+            if include_thai_translation:
+                try:
+                    logger.info("Generating Thai translation...")
+                    logger.info(f"Content length for translation: {len(content)}")
+                    thai_result = translation_service.translate_to_thai(
+                        markdown_content=content,
+                        layout_data=layout_data,
+                        source_usage_details=article_result.get("source_usage_details", [])
+                    )
+                    
+                    logger.info(f"Thai translation result keys: {list(thai_result.keys())}")
+                    logger.info(f"Translation success: {thai_result.get('translation_success', False)}")
+                    
+                    if thai_result.get('translation_success', False):
+                        result["thai_content"] = thai_result["markdown_content"]
+                        result["thai_layout"] = _parse_layout(thai_result["layout"])
+                        logger.info(f"Thai translation completed successfully. Thai content length: {len(thai_result['markdown_content'])}")
+                    else:
+                        logger.warning(f"Thai translation failed: {thai_result.get('error', 'Unknown error')}")
+                        
+                except Exception as e:
+                    logger.error(f"Error generating Thai translation: {str(e)}")
+                    # Don't fail the whole request if translation fails
+                    pass
+            
+            logger.info(f"Final result keys: {list(result.keys())}")
+            if 'thai_content' in result:
+                logger.info(f"Returning result with Thai content. Thai content length: {len(result['thai_content'])}")
+            else:
+                logger.info("Returning result without Thai content")
+            
+            return result
         
         # Quality below threshold, prepare feedback for next iteration
         if iteration < settings.MAX_QUALITY_ITERATIONS:
             feedback = f"Quality score: {quality_feedback.score:.2f}. {quality_feedback.feedback} Suggestions: {'; '.join(quality_feedback.suggestions)}"
     
     # Max iterations reached, return best attempt
-    return {
+    final_result = {
         "content": content,
         "layout": _parse_layout(layout_data),
         "quality_score": quality_feedback.score,
         "iterations": iteration,
         "source_usage_details": article_result.get("source_usage_details", [])
     }
+    
+    # Generate Thai translation if requested (even for lower quality articles)
+    if include_thai_translation:
+        try:
+            logger.info("Generating Thai translation for final result...")
+            thai_result = translation_service.translate_to_thai(
+                markdown_content=content,
+                layout_data=layout_data,
+                source_usage_details=article_result.get("source_usage_details", [])
+            )
+            
+            if thai_result.get('translation_success', False):
+                final_result["thai_content"] = thai_result["markdown_content"]
+                final_result["thai_layout"] = _parse_layout(thai_result["layout"])
+                logger.info("Final Thai translation completed successfully")
+            else:
+                logger.warning(f"Final Thai translation failed: {thai_result.get('error', 'Unknown error')}")
+                
+        except Exception as e:
+            logger.error(f"Error generating final Thai translation: {str(e)}")
+            # Don't fail the whole request if translation fails
+            pass
+    
+    return final_result
 
 def _parse_layout(layout_data: Dict[str, Any]) -> ArticleLayout:
     """Parse layout data into ArticleLayout model"""
@@ -272,6 +347,43 @@ def _parse_layout(layout_data: Dict[str, Any]) -> ArticleLayout:
         sections=sections,
         image_slots=image_slots
     )
+
+@router.post("/translate-to-thai", response_model=TranslationResponse)
+async def translate_to_thai(request: TranslationRequest):
+    """Translate article content to Thai"""
+    
+    logger.info("Translation to Thai endpoint called")
+    logger.info(f"Content length: {len(request.markdown_content)}")
+    logger.info(f"Has layout data: {bool(request.layout)}")
+    logger.info(f"Has source usage details: {bool(request.source_usage_details)}")
+    
+    try:
+        logger.info("Calling translation service...")
+        translation_result = translation_service.translate_to_thai(
+            markdown_content=request.markdown_content,
+            layout_data=request.layout,
+            source_usage_details=request.source_usage_details
+        )
+        
+        logger.info(f"Translation completed. Success: {translation_result.get('translation_success', False)}")
+        
+        if not translation_result.get('translation_success', False):
+            logger.error(f"Translation failed: {translation_result.get('error', 'Unknown error')}")
+            raise HTTPException(status_code=500, detail=f"Translation failed: {translation_result.get('error', 'Unknown error')}")
+        
+        return TranslationResponse(
+            markdown_content=translation_result['markdown_content'],
+            layout=translation_result['layout'],
+            source_usage_details=translation_result['source_usage_details'],
+            translation_success=translation_result['translation_success'],
+            translation_notes=translation_result.get('translation_notes', [])
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Translation endpoint error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Translation failed: {str(e)}")
 
 @router.get("/health")
 async def health_check():

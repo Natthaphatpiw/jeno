@@ -62,13 +62,18 @@ class DatasetBuilder:
         
         for article in tqdm(articles, desc="Processing articles"):
             try:
-                # Extract training-suitable content
-                training_content = self.content_extractor.extract_training_content(article)
-                
-                if training_content and training_content.get('training_ready'):
-                    training_ready.append(training_content)
+                # Check if article is already processed and training ready
+                if article.get('training_ready'):
+                    training_ready.append(article)
+                    logger.debug(f"Article ready for training: {article.get('metadata', {}).get('url', 'unknown')}")
                 else:
-                    logger.debug(f"Article not suitable for training: {article.get('metadata', {}).get('url', 'unknown')}")
+                    # Fallback: Extract training-suitable content if not already processed
+                    training_content = self.content_extractor.extract_training_content(article)
+                    
+                    if training_content and training_content.get('training_ready'):
+                        training_ready.append(training_content)
+                    else:
+                        logger.debug(f"Article not suitable for training: {article.get('metadata', {}).get('url', 'unknown')}")
             
             except Exception as e:
                 logger.warning(f"Error preparing article for training: {e}")

@@ -37,12 +37,12 @@ class PDFGeneratorService:
             
             logger.info("Calling OpenAI API for HTML generation...")
             response = self.client.chat.completions.create(
-                model=settings.OPENAI_MODEL,
+                model="gpt-4.1-mini",  # Use base model for HTML generation
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                max_tokens=settings.MAX_TOKENS,
+                max_tokens=4000,  # Reduced tokens for HTML generation
                 temperature=0.1,  # Lower temperature for consistent formatting
                 response_format={"type": "json_object"}
             )

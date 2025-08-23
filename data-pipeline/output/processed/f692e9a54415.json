@@ -55,22 +55,22 @@
       },
       {
         "level": 3,
-        "text": "How Government Sector Can Use Big Data to Grow and Profit",
-        "id": ""
-      },
-      {
-        "level": 3,
-        "text": "What Is a Smart City? Urban Development with Innovation",
-        "id": ""
-      },
-      {
-        "level": 3,
-        "text": "Best Channels to Sell Products: Which One is Right for You?",
+        "text": "What is Immersive Experience? Next-Level Event Design",
         "id": ""
       },
       {
         "level": 3,
         "text": "What Is Digital Inclusion? Technology for All Explained",
+        "id": ""
+      },
+      {
+        "level": 3,
+        "text": "Digital Transformation in Government for a New Way of Work",
+        "id": ""
+      },
+      {
+        "level": 3,
+        "text": "Super App vs Regular App: Which Should Organizations Choose?",
         "id": ""
       },
       {
@@ -403,22 +403,8 @@
       "height": ""
     },
     {
-      "src": "https://jenosize-web.s3.ap-southeast-1.amazonaws.com/jnzcms/ca0b1e28-5837-4e62-90fe-7c2484b8265e/images/posts/c341a2dc-da65-499d-88c9-0a2ca7bd72e1/thumb.jpg?vrsn=633689a4-780c-4092-8368-f5bd852881f2",
-      "alt": "How Government Sector Can Use Big Data to Grow and Profit",
-      "title": "",
-      "width": "540",
-      "height": "360"
-    },
-    {
-      "src": "https://jenosize-web.s3.ap-southeast-1.amazonaws.com/jnzcms/ca0b1e28-5837-4e62-90fe-7c2484b8265e/images/posts/35343e97-7b93-4763-8674-7a43709377b3/thumb.jpg?vrsn=6f13b892-4ffb-4e77-aa08-3872ee53efeb",
-      "alt": "What Is a Smart City? Urban Development with Innovation",
-      "title": "",
-      "width": "540",
-      "height": "360"
-    },
-    {
-      "src": "https://jenosize-web.s3.ap-southeast-1.amazonaws.com/jnzcms/ca0b1e28-5837-4e62-90fe-7c2484b8265e/images/posts/174682a6-4f32-4c77-bf34-fc3ea5cb2677/thumb.jpg?vrsn=f7a3f719-41d3-4e7d-a407-693e824d3f9a",
-      "alt": "Best Channels to Sell Products: Which One is Right for You?",
+      "src": "https://jenosize-web.s3.ap-southeast-1.amazonaws.com/jnzcms/ca0b1e28-5837-4e62-90fe-7c2484b8265e/images/posts/2d88958c-83b4-4766-a817-a6c5ab91e62d/thumb.jpg?vrsn=b26042bb-8a01-428d-8314-69dbdcc4b6fa",
+      "alt": "What is Immersive Experience? Next-Level Event Design",
       "title": "",
       "width": "540",
       "height": "360"
@@ -426,6 +412,20 @@
     {
       "src": "https://jenosize-web.s3.ap-southeast-1.amazonaws.com/jnzcms/ca0b1e28-5837-4e62-90fe-7c2484b8265e/images/posts/ced1fa77-b843-4411-9446-0338a4c983d8/thumb.jpg?vrsn=e6df1d98-36c2-477b-8f3b-b6ee360d7731",
       "alt": "What Is Digital Inclusion? Technology for All Explained",
+      "title": "",
+      "width": "540",
+      "height": "360"
+    },
+    {
+      "src": "https://jenosize-web.s3.ap-southeast-1.amazonaws.com/jnzcms/ca0b1e28-5837-4e62-90fe-7c2484b8265e/images/posts/737fbec9-c041-4a62-8ac3-58ad0ae0ef0b/thumb.jpg?vrsn=2a72f17f-0478-46f4-aa7d-b5a06e383bc4",
+      "alt": "Digital Transformation in Government for a New Way of Work",
+      "title": "",
+      "width": "540",
+      "height": "360"
+    },
+    {
+      "src": "https://jenosize-web.s3.ap-southeast-1.amazonaws.com/jnzcms/ca0b1e28-5837-4e62-90fe-7c2484b8265e/images/posts/c98b5e24-d6ba-48aa-aedb-5bddb19ddfb6/thumb.jpg?vrsn=42fcbd1b-3382-4cc3-ac88-b1ff85c71b9f",
+      "alt": "Super App vs Regular App: Which Should Organizations Choose?",
       "title": "",
       "width": "540",
       "height": "360"

@@ -7,6 +7,7 @@ Main orchestrator for the entire data collection and processing pipeline.
 import os
 import sys
 import time
+import re
 import argparse
 from typing import List, Dict, Optional
 from datetime import datetime
@@ -146,18 +147,11 @@ class DataPipeline:
         if self._should_skip_step(step_name, cache_file):
             logger.info("📂 Loading cached scraping results...")
             cached_data = load_json(cache_file)
-            if cached_data:
-                results = []
-                for result_data in cached_data['results']:
-                    # Reconstruct scraping results (simplified)
-                    result = ScrapingResult(
-                        success=result_data['success'],
-                        url=result_data['url'],
-                        error=result_data.get('error'),
-                        processing_time=result_data.get('processing_time', 0)
-                    )
-                    results.append(result)
-                return results
+            if cached_data and cached_data.get('results'):
+                logger.info(f"Loading {len(cached_data['results'])} cached scraping results...")
+                # Skip loading from cache for now - it's complex to reconstruct full ScrapingResult objects
+                # Let the pipeline proceed to load from processed_articles.json instead
+                pass
         
         logger.info(f"📰 Step 2: Scraping {len(article_links)} articles")
         
@@ -218,6 +212,17 @@ class DataPipeline:
     def _step_3_process_content(self, scraping_results: List[ScrapingResult]) -> List[Dict]:
         """Step 3: Process scraped content for training"""
         
+        step_name = "process_content"
+        cache_file = os.path.join(settings.OUTPUT_DIR, "processed_articles.json")
+        
+        # Check if we can load from cache
+        if self._should_skip_step(step_name, cache_file):
+            logger.info("📂 Loading cached processed articles...")
+            cached_data = load_json(cache_file)
+            if cached_data and cached_data.get('articles'):
+                logger.info(f"Loaded {len(cached_data['articles'])} processed articles from cache")
+                return cached_data['articles']
+        
         logger.info("⚙️  Step 3: Processing content for training data")
         
         processed_articles = []
@@ -250,11 +255,51 @@ class DataPipeline:
                     'images': result.content.images
                 }
                 
-                processed_articles.append(content_dict)
+                # NEW: Process content with HTML to Markdown conversion
+                logger.info(f"Processing article: {result.content.metadata.title}")
+                processed_content = self.content_extractor.extract_training_content(content_dict)
+                
+                if processed_content:
+                    processed_articles.append(processed_content)
+                    logger.info(f"✅ Successfully processed: {result.content.metadata.title}")
+                else:
+                    logger.warning(f"⚠️  Skipped article (quality check failed): {result.content.metadata.title}")
+                    continue
                 
             except Exception as e:
                 logger.warning(f"Error processing article {result.url}: {e}")
                 continue
+        
+        # Save processed articles with markdown content
+        if processed_articles:
+            processed_file = os.path.join(settings.OUTPUT_DIR, "processed_articles.json")
+            processed_data = {
+                'processing_time': datetime.now().isoformat(),
+                'total_processed': len(processed_articles),
+                'articles': processed_articles
+            }
+            save_json(processed_data, processed_file)
+            logger.info(f"💾 Saved processed articles to {processed_file}")
+            
+            # Save markdown files separately for inspection
+            markdown_dir = os.path.join(settings.OUTPUT_DIR, "markdown")
+            ensure_dir_exists(markdown_dir)
+            
+            for i, article in enumerate(processed_articles):
+                if article.get('markdown_content'):
+                    title = article['metadata'].get('title', f'article_{i}')
+                    # Clean title for filename
+                    safe_title = re.sub(r'[^\w\s-]', '', title).strip()
+                    safe_title = re.sub(r'[-\s]+', '-', safe_title)[:50]
+                    
+                    markdown_file = os.path.join(markdown_dir, f"{safe_title}.md")
+                    try:
+                        with open(markdown_file, 'w', encoding='utf-8') as f:
+                            f.write(article['markdown_content'])
+                    except Exception as e:
+                        logger.warning(f"Could not save markdown file {markdown_file}: {e}")
+            
+            logger.info(f"📝 Saved {len(processed_articles)} markdown files to {markdown_dir}")
         
         logger.info(f"✅ Content processing completed: {len(processed_articles)} articles ready for training")
         

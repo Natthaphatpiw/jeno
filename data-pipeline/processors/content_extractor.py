@@ -5,6 +5,8 @@ from markdownify import markdownify as md
 
 from utils.logger import get_logger
 from utils.helpers import clean_text, calculate_content_stats
+from services.html_to_markdown_service import HTMLToMarkdownService
+from utils.markdown_validator import MarkdownValidator
 
 logger = get_logger(__name__)
 
@@ -14,6 +16,8 @@ class ContentExtractor:
     def __init__(self):
         self.min_paragraph_length = 50
         self.max_content_length = 10000
+        self.html_to_markdown_service = HTMLToMarkdownService()
+        self.markdown_validator = MarkdownValidator()
     
     def extract_training_content(self, article_content: Dict) -> Optional[Dict]:
         """Extract content suitable for training data"""
@@ -24,23 +28,57 @@ class ContentExtractor:
             structured_content = article_content.get('structured_content', {})
             metadata = article_content.get('metadata', {})
             
-            # Validate content quality
-            if not self._is_content_suitable_for_training(text_content, metadata):
+            # NEW: Convert HTML to Markdown using LLM
+            logger.info("Converting HTML to Markdown using LLM...")
+            markdown_result = self.html_to_markdown_service.convert_html_to_markdown(
+                html_content, metadata
+            )
+            
+            if not markdown_result['conversion_success']:
+                logger.warning(f"HTML to Markdown conversion failed: {markdown_result.get('error', 'Unknown error')}")
+                # Fallback to original text content
+                markdown_content = text_content
+            else:
+                markdown_content = markdown_result['markdown_content']
+                logger.info(f"Successfully converted HTML to Markdown ({len(markdown_content)} chars)")
+                
+                # Validate markdown quality
+                validation_result = self.markdown_validator.validate_markdown_content(markdown_content)
+                logger.info(f"Markdown validation: {self.markdown_validator.get_quality_summary(validation_result)}")
+                
+                if not validation_result['is_valid']:
+                    logger.warning(f"Markdown validation failed. Issues: {validation_result['issues']}")
+                    # Could fallback to original text or skip article
+                    if validation_result['score'] < 0.5:
+                        logger.warning("Markdown quality too poor, using fallback text content")
+                        markdown_content = text_content
+                
+                # Update metadata with extracted information
+                extracted_meta = markdown_result.get('extracted_metadata', {})
+                if extracted_meta:
+                    metadata.update(extracted_meta)
+            
+            # Validate content quality using markdown content
+            if not self._is_content_suitable_for_training(markdown_content, metadata):
                 return None
             
-            # Clean and process content
-            cleaned_text = self._clean_content_for_training(text_content)
+            # Clean and process markdown content
+            cleaned_content = self._clean_content_for_training(markdown_content)
             processed_structure = self._process_structured_content(structured_content)
-            enhanced_metadata = self._enhance_metadata(metadata, cleaned_text)
+            enhanced_metadata = self._enhance_metadata(metadata, cleaned_content)
             
-            # Extract key sections for training
-            article_sections = self._extract_article_sections(html_content)
+            # Extract key sections for training from markdown
+            article_sections = self._extract_markdown_sections(markdown_content)
             
             return {
                 'metadata': enhanced_metadata,
-                'content': cleaned_text,
+                'content': cleaned_content,
+                'markdown_content': markdown_content,  # NEW: Include original markdown
                 'structured_content': processed_structure,
                 'sections': article_sections,
+                'content_structure': markdown_result.get('content_structure', {}),
+                'conversion_notes': markdown_result.get('processing_notes', []),
+                'markdown_validation': validation_result if 'validation_result' in locals() else None,
                 'training_ready': True
             }
             
@@ -109,9 +147,9 @@ class ContentExtractor:
             content = re.sub(r'[!]{2,}', '!', content)
             content = re.sub(r'[?]{2,}', '?', content)
             
-            # Clean up quotes
-            content = re.sub(r'[""]', '"', content)
-            content = re.sub(r'['']', "'", content)
+            # Clean up quotes - use simpler approach
+            content = content.replace('"', '"').replace('"', '"')
+            content = content.replace(''', "'").replace(''', "'")
             
             # Remove standalone numbers that might be page numbers or artifacts
             content = re.sub(r'\b\d+\s*$', '', content, flags=re.MULTILINE)
@@ -341,6 +379,46 @@ class ContentExtractor:
             
         except Exception as e:
             logger.warning(f"Error extracting article sections: {e}")
+        
+        return sections
+    
+    def _extract_markdown_sections(self, markdown_content: str) -> Dict[str, str]:
+        """Extract sections from markdown content"""
+        sections = {}
+        
+        if not markdown_content:
+            return sections
+        
+        try:
+            lines = markdown_content.split('\n')
+            current_section = ""
+            current_content = []
+            
+            for line in lines:
+                # Check if line is a heading
+                if line.startswith('#'):
+                    # Save previous section if exists
+                    if current_section and current_content:
+                        section_key = current_section.lower().replace(' ', '_')[:50]
+                        sections[section_key] = '\n'.join(current_content).strip()
+                    
+                    # Start new section
+                    current_section = line.lstrip('#').strip()
+                    current_content = []
+                else:
+                    # Add line to current section content
+                    if line.strip():  # Only add non-empty lines
+                        current_content.append(line)
+            
+            # Don't forget the last section
+            if current_section and current_content:
+                section_key = current_section.lower().replace(' ', '_')[:50]
+                sections[section_key] = '\n'.join(current_content).strip()
+            
+            logger.info(f"Extracted {len(sections)} sections from markdown content")
+            
+        except Exception as e:
+            logger.warning(f"Error extracting markdown sections: {e}")
         
         return sections
     

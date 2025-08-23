@@ -20,6 +20,13 @@ export const articleAPI = {
         target_audience: request.targetAudience,
         source_url: request.sourceUrl,
         source_urls: request.sourceUrls,
+        url_instructions: request.urlInstructions?.map(instruction => ({
+          url: instruction.url,
+          content_focus: instruction.contentFocus,
+          usage_instruction: instruction.usageInstruction,
+          section_target: instruction.sectionTarget,
+          extraction_type: instruction.extractionType
+        })),
         pdf_base64: request.pdfBase64,
         seo_keywords: request.seoKeywords,
         custom_prompt: request.customPrompt,
@@ -52,6 +59,8 @@ export const articleAPI = {
           usageLocation: detail.usage_location,
           usagePurpose: detail.usage_purpose,
           transformation: detail.transformation,
+          instructionCompliance: detail.instruction_compliance,
+          extractionTypeUsed: detail.extraction_type_used,
         })) || [],
         analysis: response.data.analysis ? {
           strengths: response.data.analysis.strengths,
