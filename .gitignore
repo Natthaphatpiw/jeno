@@ -5,6 +5,10 @@
 .env.test.local
 .env.production.local
 
+*.jsonl
+*.json
+*.csv
+
 # Dependencies
 node_modules/
 __pycache__/

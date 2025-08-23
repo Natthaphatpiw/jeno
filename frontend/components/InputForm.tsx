@@ -35,11 +35,18 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
     },
   });
 
-  const handleInputChange = (field: keyof ArticleRequest, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value || undefined,
-    }));
+  const handleInputChange = (field: keyof ArticleRequest, value: string | boolean) => {
+    if (field === 'includeThaiTranslation') {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value as boolean,
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: (value as string) || undefined,
+      }));
+    }
   };
 
   const handleUrlChange = (index: number, value: string) => {
@@ -90,7 +97,7 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
       pdfBase64,
       sourceUrls: validUrls.length > 0 ? validUrls : undefined,
       urlInstructions: urlInstructions.length > 0 ? urlInstructions : undefined,
-      includeThaiTranslation: formData.includeThaiTranslation === 'true',
+      includeThaiTranslation: formData.includeThaiTranslation === true,
     };
     
     // Debug: Log request data
@@ -346,10 +353,10 @@ export default function InputForm({ onSubmit, isGenerating }: InputFormProps) {
                 <input
                   type="checkbox"
                   className="w-5 h-5 text-orange-600 bg-white border-gray-300 rounded focus:ring-orange-500 focus:ring-2 mr-3"
-                  checked={formData.includeThaiTranslation === 'true'}
+                  checked={formData.includeThaiTranslation === true}
                   onChange={(e) => {
                     console.log('Checkbox changed:', e.target.checked);
-                    handleInputChange('includeThaiTranslation', e.target.checked.toString());
+                    handleInputChange('includeThaiTranslation', e.target.checked);
                   }}
                 />
                 <div>
