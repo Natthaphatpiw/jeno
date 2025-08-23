@@ -4,8 +4,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Settings:
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "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")
-    GEMINI_API_KEY = "AIzaSyDqSUS-RuFdmFnLDvovG77muu9m40GHcbI"
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
     
     # Article generation settings
     MAX_QUALITY_ITERATIONS = 3

@@ -9,6 +9,8 @@ services:
       - "5000:5000"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - TOGETHER_API_KEY=${TOGETHER_API_KEY}
       - PYTHONPATH=/app
     volumes:
       - backend_logs:/app/logs

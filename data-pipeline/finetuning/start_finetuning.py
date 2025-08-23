@@ -7,9 +7,12 @@ from together import Together
 import os
 import json
 
-# Hardcoded API key as requested
-TOGETHER_API_KEY = "74cc536c6a77ccd61c6a09a89e8a36e97c66ebdf95bce95e541b67da5c5a9b97"
-WANDB_API_KEY = None  # Optional, for logging fine-tuning to wandb
+# Load API key from environment
+from dotenv import load_dotenv
+load_dotenv()
+
+TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
+WANDB_API_KEY = os.getenv("WANDB_API_KEY")  # Optional, for logging fine-tuning to wandb
 
 def start_lora_finetuning(train_file_id, validation_file_id=None, model_name='meta-llama/Meta-Llama-3.1-8B-Instruct-Reference'):
     """

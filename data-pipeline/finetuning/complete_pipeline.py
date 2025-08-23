@@ -9,8 +9,11 @@ import os
 import json
 import time
 
-# Hardcoded API key as requested
-TOGETHER_API_KEY = "74cc536c6a77ccd61c6a09a89e8a36e97c66ebdf95bce95e541b67da5c5a9b97"
+# Load API key from environment
+from dotenv import load_dotenv
+load_dotenv()
+
+TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
 
 def run_complete_pipeline():
     """Run the complete fine-tuning pipeline"""
