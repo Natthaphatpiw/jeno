@@ -1,4 +1,8 @@
-version: '3.8'
+version: '3.11'
+
+networks:
+  app-network:
+    driver: bridge
 
 services:
   backend:
@@ -6,7 +10,9 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
@@ -16,8 +22,10 @@ services:
       - backend_logs:/app/logs
       - backend_temp:/app/temp
     restart: unless-stopped
+    networks:
+      - app-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -30,12 +38,14 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - NEXT_PUBLIC_API_URL=http://43.209.0.15:8000
       - NODE_ENV=production
     depends_on:
       backend:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - app-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/"]
       interval: 30s
