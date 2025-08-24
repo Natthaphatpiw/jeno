@@ -10,7 +10,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8003:8003"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
@@ -25,7 +25,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8003/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -38,7 +38,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - NEXT_PUBLIC_API_URL=http://43.209.0.15:8000
+      - NEXT_PUBLIC_API_URL=http://43.209.0.15:8003
       - NODE_ENV=production
     depends_on:
       backend:
