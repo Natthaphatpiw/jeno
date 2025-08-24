@@ -48,9 +48,9 @@ docker-compose up --build
 ```
 
 4. **Access the Application**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
-- API Documentation: http://localhost:5000/docs
+- Frontend: http://localhost:3001
+- Backend API: http://localhost:8003
+- API Documentation: http://localhost:8003/docs
 
 ### Method 2: Manual Setup
 
@@ -80,7 +80,7 @@ cp .env.example .env
 
 5. **Run the backend**
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 5000
+uvicorn main:app --reload --host 0.0.0.0 --port 8003
 ```
 
 #### Frontend Setup
@@ -98,7 +98,7 @@ npm install
 3. **Configure environment**
 ```bash
 cp .env.local.example .env.local
-# Edit .env.local if needed (default API URL: http://localhost:5000)
+# Edit .env.local if needed (default API URL: http://localhost:8003)
 ```
 
 4. **Run the frontend**
@@ -219,7 +219,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 #### Frontend (.env.local)
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_API_URL=http://localhost:8003
 ```
 
 ### Customization Options
@@ -342,16 +342,35 @@ python monitor_finetuning.py
 python complete_pipeline.py
 ```
 
-### Deployment for http://43.209.0.15:5000
+### Production Server Deployment
 
-1. **Configure ports to avoid conflicts** (3000, 8000, 8001 occupied):
+**Current Deployment:** http://43.209.0.15:8003
+
+1. **Manual Setup on Server:**
    ```bash
-   # Backend on port 5000
-   uvicorn main:app --host 0.0.0.0 --port 5000
+   # Backend setup
+   cd ~/jib_db/backend
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
    
-   # Frontend on port 3001 
-   npm start -- --port 3001
+   # Run backend as background process
+   nohup python main.py > app.log 2>&1 &
+   
+   # Check if running
+   ps aux | grep python
+   curl http://localhost:8003/api/health
    ```
+
+2. **Docker Deployment:**
+   ```bash
+   # Backend on port 8003
+   docker-compose up --build -d
+   ```
+
+3. **Frontend Deployment:**
+   - **Vercel:** Set `NEXT_PUBLIC_API_URL=http://43.209.0.15:8003`
+   - **Local:** Frontend connects to server backend automatically
 
 2. **Health monitoring**:
    - Backend: `/api/health` endpoint
@@ -375,9 +394,9 @@ curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:gen
 
 #### 2. CORS Issues
 ```bash
-# Backend CORS is configured for localhost:3000
-# For different domains, update main.py:
-allow_origins=["http://your-domain.com"]
+# Backend CORS is configured for all origins (*)
+# For production, update main.py:
+allow_origins=["https://your-vercel-app.vercel.app", "http://43.209.0.15:3001"]
 ```
 
 #### 3. PDF Processing Errors
@@ -471,4 +490,10 @@ For technical support or questions:
 
 ---
 
-**Built with ❤️ for Jenosize** | Powered by GPT-4o
+**Built with ❤️ for Jenosize** | Powered by GPT-4.1-mini Fine-tuned + Gemini 2.5 Pro
+
+### 🌐 Current Deployment
+- **Backend API:** http://43.209.0.15:8003
+- **Status:** Running on Ubuntu server with nohup
+- **Frontend:** Can be deployed on Vercel pointing to backend API
+- **Models:** GPT-4.1-mini (fine-tuned) + Gemini 2.5 Pro available
