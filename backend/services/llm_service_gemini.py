@@ -42,8 +42,9 @@ class LLMServiceGemini:
                 contents=full_prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.7,
-                    max_output_tokens=8000,
-                    thinking_config=types.ThinkingConfig(thinking_budget=0)  # Disable thinking
+                    max_output_tokens=16000,
+                    thinking_config=types.ThinkingConfig(thinking_budget=-1)
+                    # Remove thinking_config to use default thinking mode
                 )
             )
             
@@ -56,32 +57,63 @@ class LLMServiceGemini:
                 logger.error("Gemini returned empty content for article generation")
                 raise Exception("Gemini returned empty response")
             
-            # Try to parse as JSON first
+            # Extract JSON from response (handle cases where Gemini includes extra text)
+            json_content = None
             try:
-                logger.info("Attempting to parse JSON response...")
-                result = json.loads(content)
-                logger.info(f"JSON parsed successfully. Keys: {list(result.keys())}")
+                # First try direct JSON parsing
+                logger.info("Attempting direct JSON parsing...")
+                json_content = json.loads(content)
+                logger.info("Direct JSON parsing successful")
+            except json.JSONDecodeError:
+                # If direct parsing fails, try to extract JSON from markdown code block
+                logger.info("Direct JSON parsing failed, trying to extract JSON from code block...")
                 
-                # Extract markdown content and return it directly
-                if 'content' in result and result['content']:
-                    markdown_content = result['content']
-                    logger.info(f"Extracted markdown content length: {len(markdown_content)}")
+                # Look for JSON in ```json code blocks
+                import re
+                json_match = re.search(r'```json\s*\n(.*?)\n```', content, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                    logger.info(f"Found JSON in code block, length: {len(json_str)}")
+                    try:
+                        json_content = json.loads(json_str)
+                        logger.info("JSON extracted from code block successfully")
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Failed to parse JSON from code block: {str(e)}")
+                        logger.error(f"JSON string: {json_str[:500]}...")
+                else:
+                    # Try to find any JSON object in the response
+                    json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                    if json_match:
+                        json_str = json_match.group(0)
+                        logger.info(f"Found JSON object in text, length: {len(json_str)}")
+                        try:
+                            json_content = json.loads(json_str)
+                            logger.info("JSON extracted from text successfully")
+                        except json.JSONDecodeError as e:
+                            logger.error(f"Failed to parse JSON from text: {str(e)}")
+                
+            if json_content:
+                logger.info(f"JSON parsed successfully. Keys: {list(json_content.keys())}")
+                
+                # Extract HTML content and return it directly
+                if 'content' in json_content and json_content['content']:
+                    html_content = json_content['content']
+                    logger.info(f"Extracted HTML content length: {len(html_content)}")
                     
-                    # Return the markdown content as a string response for frontend
+                    # Return the HTML content as expected by backend
                     return {
-                        'markdown_content': markdown_content,
-                        'layout': result.get('layout', {}),
-                        'source_usage_details': result.get('source_usage_details', [])
+                        'html_content': html_content,
+                        'layout': json_content.get('layout', {}),
+                        'source_usage_details': json_content.get('source_usage_details', [])
                     }
                 else:
-                    logger.error("No content found in AI response")
+                    logger.error("No content found in parsed JSON")
                     raise Exception("AI response missing content field")
-                    
-            except json.JSONDecodeError:
-                logger.info("Response is not JSON, treating as raw markdown content")
-                # If it's not JSON, treat the entire response as markdown content
+            else:
+                logger.info("No JSON found, treating entire response as raw HTML content")
+                # If no JSON found, treat the entire response as HTML content
                 return {
-                    'markdown_content': content,
+                    'html_content': content,
                     'layout': {'sections': [], 'image_slots': []},
                     'source_usage_details': []
                 }
@@ -119,6 +151,47 @@ WRITING STYLE AND TONE:
 - **Forward-thinking perspective**: Focus on emerging opportunities rather than just current state
 - **Consultative voice**: Position Jenosize as a trusted advisor, not just an information provider
 - **Global yet accessible**: International business perspective with practical local applications
+
+**STYLE EXAMPLE - FOLLOW THIS WRITING PATTERN**:
+Here's an example of the desired writing style, structure, and language patterns (use as template for style only, NOT content):
+
+```
+# [Number] [Descriptive Title] About [Topic] You [Action/Might Not Know]
+
+Brief engaging introduction that hooks readers while establishing business relevance. Explain why understanding [topic] isn't just about [common assumption] but about [deeper strategic value] that goes beyond expectations.
+
+Below are **[number] [misconceptions/insights/strategies] about [topic]** that can [positive/negative impact]. Let's see which ones you've encountered—or believed—yourself.
+
+## What Is [Topic]?
+
+Clear definition paragraph explaining the concept and its business significance. Connect to modern business challenges and establish why this matters for executives.
+
+## [Number] [Misconceptions/Insights/Strategies] About [Topic] You Might Not Know
+
+### 1. [Misconception/Insight Title]
+
+Explain the misconception or insight with specific business examples. Use real-world scenarios that executives can relate to. End with strategic implications.
+
+### 2. [Second Point Title]
+
+Continue pattern with different aspects, always connecting to business outcomes and strategic decisions.
+
+[Continue with remaining numbered points...]
+
+## Use the [Topic] Matrix/Framework to Make Better Business Decisions
+
+Introduce a practical framework or matrix. Present it as actionable tool for decision-making:
+
+- **Category 1 – [Characteristics]**
+  Explanation with recommended tactics and business applications.
+
+- **Category 2 – [Characteristics]**  
+  Different scenario with specific strategic approaches.
+
+[Continue with framework categories...]
+
+By understanding these differences, brands can see that [key insight about strategic approach rather than simple solutions].
+```
 
 CONTENT DEPTH REQUIREMENTS:
 - **Comprehensive analysis**: Each main section should be 300-500 words minimum
@@ -196,13 +269,11 @@ ARTICLE STRUCTURE AND REQUIREMENTS:
 - FOCUS on strategic insights that demonstrate Jenosize's thought leadership capabilities
 
 RESPONSE FORMAT:
-You can respond in either:
-1. JSON format with structured content and metadata
-2. Pure Markdown format for direct article content
+You MUST respond in JSON format ONLY. Do not include any text before or after the JSON object.
 
-If responding in JSON, use:
+Respond with this exact JSON structure:
 {
-  "content": "Full article content in Markdown format with proper headings, structure, and image placeholders",
+  "content": "Full article content in HTML format with proper semantic tags, styling, and professional layout",
   "layout": {
     "sections": ["array", "of", "section", "titles"],
     "image_slots": [
@@ -233,17 +304,19 @@ If responding in JSON, use:
   ]
 }
 
-MARKDOWN FORMATTING GUIDELINES:
-- Use proper heading hierarchy (# ## ### ####)
-- **Include executive summary callout**: Use blockquote format for executive summary
-- **Data presentation**: Use tables for comparisons, statistics, and frameworks
-- **Strategic insights**: Use blockquotes for key strategic insights and recommendations
-- **Action items**: Use numbered lists for implementation steps and recommendations
-- **Supporting details**: Use bullet points for supporting information and considerations
-- Add emphasis with **bold** for key concepts and *italic* for emphasis
-- Include image placeholders as: ![{{image_id}}](placeholder) where {{image_id}} matches the slot id
-- Use proper paragraph spacing and line breaks for readability
-- **Framework boxes**: Use code blocks (```) for implementation frameworks and methodologies
+HTML FORMATTING GUIDELINES:
+- Use semantic HTML5 tags: <article>, <section>, <header>, <h1-h6>, <p>, <blockquote>, <table>, <ul>, <ol>, <strong>, <em>
+- **Professional styling**: Apply inline CSS or CSS classes for a polished, business-ready appearance
+- **Executive summary**: Use a styled <blockquote> or <div class="executive-summary"> with distinctive styling
+- **Data presentation**: Use styled <table> tags with proper headers and visual formatting
+- **Strategic insights**: Use styled <blockquote> or <div class="insight-box"> for key insights
+- **Action items**: Use numbered <ol> lists with proper styling for implementation steps
+- **Supporting details**: Use <ul> lists with clear visual hierarchy
+- **Typography**: Use professional font sizing, line heights, and spacing throughout
+- **Image placeholders**: Use <div class="image-placeholder" data-image-id="{{image_id}}">Image: {{description}}</div>
+- **Framework boxes**: Use styled <div class="framework-box"> or <pre> tags for methodologies
+- **Color scheme**: Use professional colors (grays, blues, navy) consistent with business themes
+- **Responsive design**: Ensure content looks good on different screen sizes
 
 EXECUTIVE CONTENT ELEMENTS:
 - **Industry benchmarks**: Include comparative analysis and industry standards
@@ -370,7 +443,8 @@ Before completing your response, ensure:
                 config=types.GenerateContentConfig(
                     temperature=0.3,
                     max_output_tokens=1000,
-                    thinking_config=types.ThinkingConfig(thinking_budget=0)  # Disable thinking
+                    thinking_config=types.ThinkingConfig(thinking_budget=-1)
+                    # Remove thinking_config to use default thinking mode
                 )
             )
             

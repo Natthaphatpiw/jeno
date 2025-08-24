@@ -231,7 +231,10 @@ async def _generate_with_quality_loop(context: GenerationContext, include_thai_t
             raise HTTPException(status_code=500, detail=f"Error in article generation: {str(e)}")
         
         # Extract content and layout
-        content = article_result.get("markdown_content", "") or article_result.get("content", "")
+        if selected_model == 'gemini-pro':
+            content = article_result.get("html_content", "") or article_result.get("content", "")
+        else:
+            content = article_result.get("markdown_content", "") or article_result.get("content", "")
         layout_data = article_result.get("layout", {})
         
         if not content:

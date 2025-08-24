@@ -8,6 +8,7 @@
 *.jsonl
 *.json
 *.csv
+*.pdf
 
 # Dependencies
 node_modules/

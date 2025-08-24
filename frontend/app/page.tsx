@@ -6,9 +6,12 @@ import { articleAPI } from '../services/api';
 import { ArticleRequest, ArticleResponse, GenerationStatus } from '../types';
 import InputForm from '../components/InputForm';
 import ArticleDisplay from '../components/ArticleDisplay';
+import GeminiResponseDisplay from '../components/GeminiResponseDisplay';
 
 export default function HomePage() {
   const [article, setArticle] = useState<ArticleResponse | null>(null);
+  const [rawGeminiResponse, setRawGeminiResponse] = useState<any>(null);
+  const [selectedModel, setSelectedModel] = useState<'gpt-finetune' | 'gemini-pro'>('gpt-finetune');
   const [generationStatus, setGenerationStatus] = useState<GenerationStatus>({
     isGenerating: false,
     currentStep: '',
@@ -21,6 +24,9 @@ export default function HomePage() {
     // Create abort controller for cancellation
     const controller = new AbortController();
     setAbortController(controller);
+    
+    // Store the selected model
+    setSelectedModel(request.selectedModel || 'gpt-finetune');
     
     setGenerationStatus({
       isGenerating: true,
@@ -72,7 +78,17 @@ export default function HomePage() {
       console.log('Has thaiContent:', !!response.thaiContent);
       console.log('Thai content length:', response.thaiContent?.length || 0);
       
-      setArticle(response);
+      // Store response based on model type
+      if (request.selectedModel === 'gemini-pro') {
+        // For Gemini, store the raw response for special display
+        setRawGeminiResponse(response);
+        setArticle(null);
+      } else {
+        // For GPT, use normal article display
+        setArticle(response);
+        setRawGeminiResponse(null);
+      }
+      
       setCurrentView('result');
       setGenerationStatus({
         isGenerating: false,
@@ -118,6 +134,7 @@ export default function HomePage() {
   const handleBackToInput = () => {
     setCurrentView('input');
     setArticle(null);
+    setRawGeminiResponse(null);
     setGenerationStatus({
       isGenerating: false,
       currentStep: '',
@@ -128,6 +145,7 @@ export default function HomePage() {
   const handleRegenerateRequest = () => {
     setCurrentView('input');
     setArticle(null);
+    setRawGeminiResponse(null);
     setGenerationStatus({
       isGenerating: false,
       currentStep: '',
@@ -261,11 +279,21 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Result View */}
-      {currentView === 'result' && article && (
+      {/* Result View - GPT */}
+      {currentView === 'result' && article && selectedModel === 'gpt-finetune' && (
         <section>
           <ArticleDisplay 
             article={article}
+            onRegenerateRequest={handleRegenerateRequest}
+          />
+        </section>
+      )}
+
+      {/* Result View - Gemini */}
+      {currentView === 'result' && rawGeminiResponse && selectedModel === 'gemini-pro' && (
+        <section>
+          <GeminiResponseDisplay 
+            responseData={rawGeminiResponse}
             onRegenerateRequest={handleRegenerateRequest}
           />
         </section>
