@@ -45,7 +45,7 @@ class Settings:
     USER_PROMPT_VARIATIONS = 10
     
     # OpenAI settings for HTML to Markdown conversion
-    OPENAI_API_KEY = "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"
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     OPENAI_MODEL = "gpt-4.1-mini" # Use cheaper model for conversion
     
     # Logging

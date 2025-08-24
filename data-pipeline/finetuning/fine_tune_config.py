@@ -12,7 +12,7 @@ class FineTuningConfig:
     """Configuration for fine-tuning jobs"""
     
     # OpenAI API settings
-    api_key: str = "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"
+    api_key: str = ""
     base_url: str = "https://api.openai.com/v1"
     
     # Model settings

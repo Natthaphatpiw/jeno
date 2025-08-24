@@ -5,9 +5,9 @@ load_dotenv()
 
 class Settings:
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    GEMINI_API_KEY= os.getenv("GEMINI_API_KEY")
     TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
-    
+        
     # Article generation settings
     MAX_QUALITY_ITERATIONS = 3
     QUALITY_THRESHOLD = 0.85
